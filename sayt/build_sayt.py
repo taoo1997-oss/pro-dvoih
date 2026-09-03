@@ -12,6 +12,7 @@ assets/ копируются в dist/ как есть.
 """
 import datetime
 import html as _html
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -43,8 +44,17 @@ _MAX_SVG = ('<svg viewBox="0 0 1000 1000" aria-hidden="true"><path fill="current
 
 
 def max_entries():
-    """MAX-иконка в подвале и в окне связи. Пусто, если ссылка не задана в pages.py."""
+    """MAX-иконка в подвале и в окне связи.
+    Ссылку берём из pages.py SITE["max"] или из строки вида https://max.ru/u/...
+    в sayt/номер.txt. Пусто — иконки MAX нет.
+    """
     url = (SITE.get("max") or "").strip()
+    if not url:
+        f = HERE / "номер.txt"
+        if f.exists():
+            m = re.search(r"https?://max\.ru/\S+", f.read_text(encoding="utf-8"))
+            if m:
+                url = m.group(0).strip()
     if not url:
         return {"{{MAX_ENTRY}}": "", "{{MAX_MODAL_ENTRY}}": ""}
     foot = f'<a class="ic" href="{url}">{_MAX_SVG}<span>MAX</span></a>'
