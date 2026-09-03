@@ -232,4 +232,60 @@ a:hover{ color:var(--ink); }
   font-size:12.5px; color:var(--ink-faint);
 }
 
-@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+/* ---------- появление при прокрутке ---------- */
+.anim [data-reveal]{
+  opacity:0; transform:translateY(22px);
+  transition:opacity .6s cubic-bezier(.22,.61,.36,1), transform .6s cubic-bezier(.22,.61,.36,1);
+}
+.anim [data-reveal].in{ opacity:1; transform:none; }
+.anim .work[data-reveal]{ transform:translateY(24px) scale(.985); }
+.anim .work[data-reveal].in{ transform:none; }
+/* фото героя — мягкий зум один раз при загрузке */
+.anim .hero{ overflow:hidden; }
+.anim .hero-photo{ animation:heroIn 1400ms cubic-bezier(.22,.61,.36,1) both; }
+@keyframes heroIn{ from{ transform:scale(1.07); opacity:.45; } to{ transform:scale(1); opacity:1; } }
+
+/* ---------- окно «как связаться» ---------- */
+.contact-modal{
+  position:fixed; inset:0; z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px; background:rgba(36,31,27,0.42);
+  -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  animation:modalFade .18s ease both;
+}
+@keyframes modalFade{ from{ opacity:0; } to{ opacity:1; } }
+.contact-card{
+  position:relative; width:100%; max-width:440px;
+  background:var(--surface); border:1px solid var(--line);
+  padding:clamp(28px, 5vw, 44px);
+  box-shadow:0 30px 80px -24px rgba(36,31,27,0.4);
+  animation:modalRise .24s cubic-bezier(.22,.61,.36,1) both;
+}
+@keyframes modalRise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+.contact-card .eyebrow{ margin-bottom:12px; }
+.contact-card h2{ font-size:clamp(24px, 4vw, 30px); margin-bottom:10px; }
+.contact-lede{ color:var(--ink-soft); font-size:15px; margin-bottom:24px; }
+.contact-close{
+  position:absolute; top:12px; right:12px; width:38px; height:38px;
+  border:0; background:transparent; cursor:pointer;
+  font-size:26px; line-height:1; color:var(--ink-faint);
+  border-radius:50%; transition:background .15s ease, color .15s ease;
+}
+.contact-close:hover{ background:var(--surface-2); color:var(--ink); }
+.contact-links{ display:flex; flex-direction:column; gap:10px; }
+.contact-link{
+  display:flex; align-items:center; gap:12px;
+  padding:14px 16px; border:1px solid var(--line);
+  text-decoration:none; color:var(--ink); font-weight:600; font-size:15px;
+  transition:border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.contact-link:hover{ border-color:var(--ink); background:var(--surface-warm); color:var(--ink); transform:translateX(2px); }
+.contact-link svg{ width:22px; height:22px; flex:0 0 auto; color:var(--ink-soft); }
+.contact-link span{ font-variant-numeric:tabular-nums; }
+
+@media (prefers-reduced-motion:reduce){
+  *{ transition:none !important; }
+  .anim [data-reveal]{ opacity:1 !important; transform:none !important; }
+  .anim .hero-photo{ animation:none !important; }
+  .contact-modal, .contact-card{ animation:none !important; }
+}

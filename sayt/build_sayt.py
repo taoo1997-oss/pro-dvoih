@@ -25,8 +25,31 @@ DIST = HERE / "dist"
 WORKS_BASE = "/works"
 
 PLACEHOLDERS = ("{{TITLE}}", "{{DESC}}", "{{NAV}}", "{{CONTENT}}", "{{YEAR}}", "{{TELEGRAM}}",
-                "{{PHONE_TEL}}", "{{PHONE_WA}}", "{{PHONE_MAX}}", "{{PHONE_DISP}}",
+                "{{PHONE_TEL}}", "{{PHONE_WA}}", "{{PHONE_DISP}}",
+                "{{MAX_ENTRY}}", "{{MAX_MODAL_ENTRY}}",
                 "{{PORTFOLIO_GRID}}", "{{PORTFOLIO_PREVIEW}}", "{{REL}}")
+
+_MAX_SVG = ('<svg viewBox="0 0 1000 1000" aria-hidden="true"><path fill="currentColor" '
+            'fill-rule="evenodd" clip-rule="evenodd" d="M249.681 0H750.319A249.681 249.681 0 0 1 '
+            '1000 249.681V750.319A249.681 249.681 0 0 1 750.319 1000H249.681A249.681 249.681 0 0 1 '
+            '0 750.319V249.681A249.681 249.681 0 0 1 249.681 0ZM508.211 878.328c-75.007 0-109.864'
+            '-10.95-170.453-54.75-38.325 49.275-159.686 87.783-164.979 21.9 0-49.456-10.95-91.248'
+            '-23.36-136.873-14.782-56.21-31.572-118.807-31.572-209.508 0-216.626 177.754-379.597 '
+            '388.357-379.597 210.785 0 375.947 171.001 375.947 381.604.707 207.346-166.595 '
+            '376.118-373.94 377.224m3.103-571.585c-102.564-5.292-182.499 65.7-200.201 177.024-14.6 '
+            '92.162 11.315 204.398 33.397 210.238 10.585 2.555 37.23-18.98 53.837-35.587a189.8 '
+            '189.8 0 0 0 92.71 33.032c106.273 5.112 197.08-75.794 204.215-181.95 4.154-106.382'
+            '-77.67-196.486-183.958-202.574Z"/></svg>')
+
+
+def max_entries():
+    """MAX-иконка в подвале и в окне связи. Пусто, если ссылка не задана в pages.py."""
+    url = (SITE.get("max") or "").strip()
+    if not url:
+        return {"{{MAX_ENTRY}}": "", "{{MAX_MODAL_ENTRY}}": ""}
+    foot = f'<a class="ic" href="{url}">{_MAX_SVG}<span>MAX</span></a>'
+    modal = f'<a class="contact-link" href="{url}">{_MAX_SVG}<span>MAX</span></a>'
+    return {"{{MAX_ENTRY}}": foot, "{{MAX_MODAL_ENTRY}}": modal}
 
 MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня",
           "июля", "августа", "сентября", "октября", "ноября", "декабря"]
@@ -75,7 +98,7 @@ def _card(c):
     e = lambda s: _html.escape(str(s), quote=True)
     slug = c["slug"]
     return (
-        f'<a class="work" href="{{{{REL}}}}works/{slug}/" style="--w-accent:{p["C_ACCENT"]}">'
+        f'<a class="work" href="{{{{REL}}}}works/{slug}/" data-reveal style="--w-accent:{p["C_ACCENT"]}">'
         f'<span class="work-shot">'
         f'<img src="{{{{REL}}}}assets/works/{slug}.jpg" alt="Лендинг: {e(c["names"])}" loading="lazy">'
         f'</span>'
@@ -125,6 +148,7 @@ def main():
                 pass
     year = str(datetime.date.today().year)
     phone = load_phone()
+    mx = max_entries()
     concepts = load_concepts()
     grid = portfolio_grid(concepts)
     preview = portfolio_preview(concepts)
@@ -148,6 +172,7 @@ def main():
             "{{PORTFOLIO_PREVIEW}}": preview,
         }
         repl.update(phone)
+        repl.update(mx)
         for token, value in repl.items():
             html = html.replace(token, value)
         html = html.replace("{{REL}}", rel)   # после всех вставок (grid/nav тоже содержат {{REL}})
