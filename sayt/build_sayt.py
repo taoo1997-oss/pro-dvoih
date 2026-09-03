@@ -66,9 +66,15 @@ MONTHS = ["января", "февраля", "марта", "апреля", "ма�
 
 
 def load_phone():
-    """Читает sayt/номер.txt (одна строка в любом виде) → ссылки для связи."""
+    """Телефон из sayt/номер.txt — берём ПЕРВУЮ строку с цифрами (не строку max.ru)."""
     f = HERE / "номер.txt"
-    raw = f.read_text(encoding="utf-8").strip() if f.exists() else ""
+    raw = ""
+    if f.exists():
+        for line in f.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and "max.ru" not in line and any(ch.isdigit() for ch in line):
+                raw = line
+                break
     d = "".join(ch for ch in raw if ch.isdigit())
     if len(d) == 11 and d[0] in "78":
         d = "7" + d[1:]
