@@ -1,0 +1,25 @@
+# зависимости и кэши
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# артефакт сборки витрины (собирается из sayt/ скриптом и в CI)
+sayt/dist/
+
+# локальные базы
+*.db
+
+# секреты — НЕ коммитить
+**/token.txt
+*.pem
+*.key
+
+# рабочие скриншоты багов
+баги/
+
+# система / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.gradle/

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Список гостей — Константин и Юлия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16242B;
+    --cream:#F6F1E7;
+    --cream-2:#ECE1CC;
+    --amber:#B07C3F;
+    --amber-deep:#8C6130;
+    --line: rgba(22,36,43,0.16);
+    --text:#2A2420;
+    --text-soft:#5C5346;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'PT Serif', serif; background:var(--cream); color:var(--text);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:72px 24px 100px; }
+  .top{ text-align:center; margin-bottom:56px; }
+  .top .script{ font-family:'Marck Script', cursive; font-size:36px; color:var(--ink); margin-bottom:10px; }
+  .top .note{ font-family:'PT Serif', serif; font-style:italic; color:var(--text-soft); font-size:15px; }
+  .top .private{
+    display:inline-block; margin-top:18px; font-size:12px; letter-spacing:0.02em;
+    color:var(--amber-deep); border:1px solid var(--line); border-radius:999px; padding:6px 16px;
+  }
+  .summary{
+    display:flex; justify-content:center; gap:48px; margin:0 0 56px; padding:28px 0;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .summary-item{ text-align:center; }
+  .summary-num{ font-family:'Playfair Display', serif; font-size:34px; color:var(--amber-deep); }
+  .summary-label{ font-family:'PT Serif', serif; font-style:italic; font-size:13px; color:var(--text-soft); margin-top:6px; }
+  h2{ font-family:'Playfair Display', serif; font-style:italic; font-weight:500; text-align:center; margin:0 0 40px; font-size:26px; }
+  .guest-entry{ padding:18px 4px; border-bottom:1px solid var(--line); }
+  .guest-entry:first-child{ border-top:1px solid var(--line); }
+  .g-main{ font-size:18px; }
+  .g-extra{ font-size:15px; color:var(--text-soft); margin-top:4px; }
+  .empty{ text-align:center; color:var(--text-soft); font-style:italic; padding:40px 0; }
+  .refresh{
+    display:block; margin:56px auto 0; padding:14px 36px; background:var(--amber); color:#fff;
+    border:none; border-radius:999px; font-family:'PT Serif',serif; font-style:italic; font-size:15px;
+    cursor:pointer; transition:background .2s ease;
+  }
+  .refresh:hover{ background:var(--amber-deep); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="script">Константин и Юлия</div>
+      <div class="note">3 декабря 2026 · кафе «Причал»</div>
+      <div class="private">только для вас</div>
+    </div>
+
+    <div class="summary">
+      <div class="summary-item">
+        <div class="summary-num" id="totalGuests">—</div>
+        <div class="summary-label">всего гостей</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-num" id="totalGroups">—</div>
+        <div class="summary-label">подтверждений</div>
+      </div>
+    </div>
+
+    <h2>Список гостей</h2>
+    <div id="guestListContainer">
+      <p class="empty">Загружаем список...</p>
+    </div>
+
+    <button class="refresh" id="refreshBtn">Обновить список</button>
+  </div>
+
+<script>
+  async function renderGuestList(){
+    var container = document.getElementById('guestListContainer');
+    var totalGuestsEl = document.getElementById('totalGuests');
+    var totalGroupsEl = document.getElementById('totalGroups');
+    try{
+      var res = await window.storage.get('guest_list', true);
+      var list = (res && res.value) ? JSON.parse(res.value) : [];
+      if(!list.length){
+        container.innerHTML = '<p class="empty">Пока никто не подтвердил участие.</p>';
+        totalGuestsEl.textContent = '0';
+        totalGroupsEl.textContent = '0';
+        return;
+      }
+      var totalGuests = 0;
+      container.innerHTML = list.map(function(entry){
+        var extras = entry.guests || [];
+        totalGuests += 1 + extras.length;
+        var extraHtml = extras.length
+          ? '<div class="g-extra">+ ' + extras.map(function(n){ return n.replace(/</g,'&lt;'); }).join(', ') + '</div>'
+          : '';
+        var mainName = (entry.name || '').replace(/</g,'&lt;');
+        return '<div class="guest-entry"><div class="g-main">' + mainName + '</div>' + extraHtml + '</div>';
+      }).join('');
+      totalGuestsEl.textContent = String(totalGuests);
+      totalGroupsEl.textContent = String(list.length);
+    }catch(err){
+      container.innerHTML = '<p class="empty">Пока никто не подтвердил участие.</p>';
+      totalGuestsEl.textContent = '0';
+      totalGroupsEl.textContent = '0';
+    }
+  }
+  renderGuestList();
+  document.getElementById('refreshBtn').addEventListener('click', renderGuestList);
+</script>
+</body>
+</html>

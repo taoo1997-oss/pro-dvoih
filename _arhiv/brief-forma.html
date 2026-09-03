@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бриф на свадебный сайт-приглашение</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16242B; --ink-2:#0F1B21;
+    --cream:#F6F1E7; --cream-2:#ECE1CC;
+    --amber:#B07C3F; --amber-deep:#8C6130;
+    --line: rgba(22,36,43,0.16);
+    --text:#2A2420; --text-soft:#5C5346;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'PT Serif', serif; background:var(--cream); color:var(--text);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2{font-family:'Playfair Display', serif; margin:0; font-weight:500;}
+  :focus-visible{outline:2px solid var(--amber); outline-offset:3px;}
+
+  header{ background:var(--ink); color:var(--cream); padding:76px 24px 64px; text-align:center; }
+  header .script{ font-family:'Marck Script', cursive; font-size:38px; margin-bottom:14px; }
+  header p{ color:rgba(246,241,231,0.72); font-style:italic; max-width:480px; margin:0 auto; font-size:15px; }
+
+  main{ max-width:640px; margin:0 auto; padding:64px 24px 120px; }
+  section{ margin-bottom:64px; }
+  section h2{ font-style:italic; font-size:26px; margin-bottom:32px; border-bottom:1px solid var(--line); padding-bottom:16px; }
+
+  .q{ margin-bottom:32px; }
+  .q label{ display:block; font-size:16px; font-weight:700; margin-bottom:4px; }
+  .q .hint{ display:block; font-style:italic; font-size:14px; color:var(--text-soft); margin-bottom:12px; }
+  .q input[type="text"], .q textarea{
+    width:100%; border:none; border-bottom:1px solid var(--line); background:transparent;
+    font-family:'PT Serif', serif; font-size:16px; padding:8px 2px; color:var(--text); resize:vertical;
+  }
+  .q textarea{ min-height:64px; }
+  .q input:focus, .q textarea:focus{ outline:none; border-color:var(--amber); }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:10px; }
+  .chip{
+    padding:11px 20px; border-radius:999px; border:1px solid var(--line); background:transparent;
+    font-family:'PT Serif', serif; font-size:15px; color:var(--text); cursor:pointer;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .chip.active{ background:var(--amber); border-color:var(--amber); color:#fff; }
+  .chip-other-field{ margin-top:12px; display:none; }
+  .chip-other-field.show{ display:block; }
+
+  .submit-row{ text-align:center; margin-top:80px; }
+  .submit-btn{
+    padding:18px 48px; background:var(--amber); color:#fff; border:none; border-radius:999px;
+    font-family:'PT Serif', serif; font-style:italic; font-size:17px; cursor:pointer;
+    transition:background .2s ease, transform .2s ease;
+  }
+  .submit-btn:hover{ background:var(--amber-deep); transform:translateY(-1px); }
+  .submit-btn:disabled{ opacity:.6; cursor:default; transform:none; }
+  .submit-status{ margin-top:16px; font-size:14px; color:var(--amber-deep); font-style:italic; min-height:20px; }
+
+  #thanks{
+    display:none; text-align:center; padding:100px 24px;
+    font-family:'Playfair Display', serif; font-style:italic; font-size:28px;
+  }
+  #thanks span{ display:block; font-family:'PT Serif', serif; font-style:normal; font-size:15px;
+    color:var(--text-soft); margin-top:14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="script">Бриф на сайт-приглашение</div>
+  <p>Заполните, пожалуйста — это поможет собрать полную картину для вашего сайта. Фотографии пришлите отдельно, в чат или ссылкой на облако.</p>
+</header>
+
+<main>
+<form id="briefForm">
+
+  <section data-section="1. О паре">
+    <h2>1. О паре</h2>
+    <div class="q">
+      <label>Имена жениха и невесты</label>
+      <span class="hint">как писать на сайте — полностью или уменьшительно</span>
+      <input type="text" data-id="coupleNames">
+    </div>
+    <div class="q">
+      <label>Ссылка на общий Instagram или соцсети пары</label>
+      <span class="hint">необязательно</span>
+      <input type="text" data-id="instagram">
+    </div>
+  </section>
+
+  <section data-section="2. Дата и место">
+    <h2>2. Дата и место</h2>
+    <div class="q"><label>Дата свадьбы</label><input type="text" data-id="weddingDate"></div>
+    <div class="q"><label>Время начала</label><input type="text" data-id="weddingTime"></div>
+    <div class="q"><label>Название площадки</label><input type="text" data-id="venueName"></div>
+    <div class="q"><label>Полный адрес</label><input type="text" data-id="venueAddress"></div>
+    <div class="q">
+      <label>Ссылка на площадку</label>
+      <span class="hint">2ГИС, Яндекс.Карты — если есть</span>
+      <input type="text" data-id="venueMapLink">
+    </div>
+  </section>
+
+  <section data-section="3. Фотографии">
+    <h2>3. Фотографии</h2>
+    <div class="q">
+      <label>Сколько фото готовы прислать</label>
+      <span class="hint">нужно минимум 4: одно для обложки + три для галереи</span>
+      <input type="text" data-id="photoCount">
+    </div>
+    <div class="q">
+      <label>Как удобнее передать фото</label>
+      <span class="hint">в чат, Telegram, ссылка на Google Диск и т.п.</span>
+      <input type="text" data-id="photoDelivery">
+    </div>
+    <div class="q">
+      <label>Это кадры с профессиональной love-story съёмки или личные фото?</label>
+      <input type="text" data-id="photoSource">
+    </div>
+  </section>
+
+  <section data-section="4. Стиль и настроение">
+    <h2>4. Стиль и настроение</h2>
+    <div class="q">
+      <label>Примеры сайтов-приглашений, которые понравились</label>
+      <span class="hint">ссылки, если есть</span>
+      <textarea data-id="styleExamples"></textarea>
+    </div>
+    <div class="q">
+      <label>Цветовая гамма свадьбы</label>
+      <span class="hint">если есть фирменный цвет</span>
+      <input type="text" data-id="colorPalette">
+    </div>
+    <div class="q">
+      <label>Какое настроение ближе</label>
+      <span class="hint">можно выбрать несколько</span>
+      <div class="chips" data-group="mood" data-select="multi">
+        <button type="button" class="chip" data-value="нежное и романтичное">нежное и романтичное</button>
+        <button type="button" class="chip" data-value="строгое и классическое">строгое и классическое</button>
+        <button type="button" class="chip" data-value="яркое и весёлое">яркое и весёлое</button>
+        <button type="button" class="chip" data-value="современное и минималистичное">современное и минималистичное</button>
+        <button type="button" class="chip chip-other" data-value="своё">своё</button>
+      </div>
+      <div class="chip-other-field" data-other-for="mood"><input type="text" placeholder="опишите" data-id="moodOther"></div>
+    </div>
+    <div class="q">
+      <label>Чего лучше избегать в оформлении</label>
+      <input type="text" data-id="avoidStyle">
+    </div>
+  </section>
+
+  <section data-section="5. Текст приглашения">
+    <h2>5. Текст приглашения</h2>
+    <div class="q">
+      <label>Обращение к гостям</label>
+      <div class="chips" data-group="textAuthor" data-select="single">
+        <button type="button" class="chip" data-value="Напишу сам(а)">напишу сам(а)</button>
+        <button type="button" class="chip" data-value="Доверю автору">доверю автору</button>
+      </div>
+    </div>
+    <div class="q">
+      <label>Если сами — впишите текст здесь</label>
+      <textarea data-id="inviteTextDraft"></textarea>
+    </div>
+    <div class="q">
+      <label>Тон текста</label>
+      <span class="hint">можно выбрать несколько</span>
+      <div class="chips" data-group="tone" data-select="multi">
+        <button type="button" class="chip" data-value="тёплый, лиричный">тёплый, лиричный</button>
+        <button type="button" class="chip" data-value="с юмором">с юмором</button>
+        <button type="button" class="chip" data-value="официальный, сдержанный">официальный, сдержанный</button>
+      </div>
+    </div>
+  </section>
+
+  <section data-section="6. Дополнительные блоки">
+    <h2>6. Дополнительные блоки</h2>
+    <div class="q">
+      <label>Что нужно добавить на сайт</label>
+      <span class="hint">можно выбрать несколько</span>
+      <div class="chips" data-group="extras" data-select="multi">
+        <button type="button" class="chip" data-value="программа дня / тайминг">программа дня / тайминг</button>
+        <button type="button" class="chip" data-value="дресс-код (с описанием цветов)">дресс-код (с описанием цветов)</button>
+        <button type="button" class="chip" data-value="пожелания по подаркам">пожелания по подаркам</button>
+        <button type="button" class="chip chip-other" data-value="своё">своё</button>
+      </div>
+      <div class="chip-other-field" data-other-for="extras"><input type="text" placeholder="опишите" data-id="extrasOther"></div>
+    </div>
+  </section>
+
+  <section data-section="7. Подтверждение участия (RSVP)">
+    <h2>7. Подтверждение участия (RSVP)</h2>
+    <div class="q"><label>До какой даты собирать ответы гостей</label><input type="text" data-id="rsvpDeadline"></div>
+    <div class="q">
+      <label>Нужна ли кнопка «+ добавить гостя»</label>
+      <span class="hint">для пар, семей с детьми и т.п.</span>
+      <div class="chips" data-group="addGuest" data-select="single">
+        <button type="button" class="chip" data-value="Да, нужна">да, нужна</button>
+        <button type="button" class="chip" data-value="Не нужна">не нужна</button>
+      </div>
+    </div>
+    <div class="q">
+      <label>Какие вопросы задавать гостю, кроме имени и присутствия</label>
+      <span class="hint">аллергии, пожелания по меню, нужен ли трансфер, детское место</span>
+      <textarea data-id="guestExtraQuestions"></textarea>
+    </div>
+  </section>
+
+  <section data-section="8. Список гостей">
+    <h2>8. Список гостей</h2>
+    <div class="q">
+      <label>Нужен ли отдельный приватный файл со списком подтвердившихся гостей</label>
+      <span class="hint">по умолчанию — да, ссылка только для вас</span>
+      <div class="chips" data-group="privateList" data-select="single">
+        <button type="button" class="chip" data-value="Да">да</button>
+        <button type="button" class="chip" data-value="Не нужно">не нужно</button>
+      </div>
+    </div>
+    <div class="q">
+      <label>Нужен ли автоматический подсчёт числа гостей для банкета</label>
+      <div class="chips" data-group="guestCount" data-select="single">
+        <button type="button" class="chip" data-value="Да">да</button>
+        <button type="button" class="chip" data-value="Не нужно">не нужно</button>
+      </div>
+    </div>
+  </section>
+
+  <section data-section="9. Контакты и рассылка">
+    <h2>9. Контакты и рассылка</h2>
+    <div class="q">
+      <label>Как будете отправлять ссылку гостям</label>
+      <span class="hint">мессенджеры, соцсети, бумажные приглашения с QR-кодом</span>
+      <input type="text" data-id="distributionMethod">
+    </div>
+    <div class="q">
+      <label>Указать ли на сайте контакт для вопросов от гостей</label>
+      <span class="hint">если да — чей и какой</span>
+      <input type="text" data-id="contactOnSite">
+    </div>
+  </section>
+
+  <section data-section="10. Сроки">
+    <h2>10. Сроки</h2>
+    <div class="q"><label>К какой дате нужен готовый сайт</label><input type="text" data-id="deadlineDate"></div>
+    <div class="q"><label>Другие пожелания или ограничения</label><textarea data-id="otherNotes"></textarea></div>
+  </section>
+
+  <div class="submit-row">
+    <button type="submit" class="submit-btn" id="submitBtn">Отправить бриф</button>
+    <div class="submit-status" id="submitStatus"></div>
+  </div>
+
+</form>
+
+<div id="thanks">
+  Спасибо!
+  <span>Бриф получен — приступаю к макету, как будут фотографии.</span>
+</div>
+
+</main>
+
+<script>
+  // toggle chip selection
+  document.querySelectorAll('.chips').forEach(function(group){
+    var mode = group.dataset.select;
+    group.querySelectorAll('.chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        if(mode === 'single'){
+          group.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+          chip.classList.add('active');
+        } else {
+          chip.classList.toggle('active');
+        }
+        if(chip.classList.contains('chip-other')){
+          var field = document.querySelector('.chip-other-field[data-other-for="' + group.dataset.group + '"]');
+          if(field) field.classList.toggle('show', chip.classList.contains('active'));
+        }
+      });
+    });
+  });
+
+  // field label map for the private answers view
+  var LABELS = {};
+  document.querySelectorAll('.q label').forEach(function(labelEl){
+    var input = labelEl.parentElement.querySelector('[data-id]');
+    if(input) LABELS[input.dataset.id] = labelEl.textContent.trim();
+  });
+  document.querySelectorAll('.chips').forEach(function(group){
+    var q = group.closest('.q');
+    var labelEl = q ? q.querySelector('label') : null;
+    if(labelEl) LABELS[group.dataset.group] = labelEl.textContent.trim();
+  });
+
+  document.getElementById('briefForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var btn = document.getElementById('submitBtn');
+    var status = document.getElementById('submitStatus');
+    btn.disabled = true;
+    btn.textContent = 'Отправляем...';
+
+    var answers = [];
+
+    document.querySelectorAll('[data-id]').forEach(function(field){
+      var val = field.value.trim();
+      if(val) answers.push({ label: LABELS[field.dataset.id] || field.dataset.id, value: val });
+    });
+
+    document.querySelectorAll('.chips').forEach(function(group){
+      var active = Array.from(group.querySelectorAll('.chip.active')).map(function(c){ return c.dataset.value; });
+      if(active.length) answers.push({ label: LABELS[group.dataset.group] || group.dataset.group, value: active.join(', ') });
+    });
+
+    var coupleField = document.querySelector('[data-id="coupleNames"]');
+    var title = (coupleField && coupleField.value.trim()) || 'Без имени';
+
+    try{
+      var list = [];
+      try{
+        var res = await window.storage.get('brief_submissions', true);
+        if(res && res.value) list = JSON.parse(res.value);
+      }catch(readErr){ list = []; }
+      list.push({ title: title, ts: Date.now(), answers: answers });
+      await window.storage.set('brief_submissions', JSON.stringify(list), true);
+
+      document.getElementById('briefForm').style.display = 'none';
+      document.getElementById('thanks').style.display = 'block';
+    }catch(err){
+      status.textContent = 'Не получилось отправить. Попробуйте ещё раз.';
+      btn.disabled = false;
+      btn.textContent = 'Отправить бриф';
+    }
+  });
+</script>
+</body>
+</html>

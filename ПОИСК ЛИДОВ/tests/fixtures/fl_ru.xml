@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel>
+  <title>FL.ru — проекты</title>
+  <link>https://www.fl.ru/projects/</link>
+  <item>
+    <title>Нужен сайт-приглашение на свадьбу (лендинг)</title>
+    <link>https://www.fl.ru/projects/1111111/svadebnyy-lending.html</link>
+    <description>&lt;p&gt;Требуется одностраничный сайт-приглашение к свадьбе: имена, дата, карта, форма RSVP. Бюджет до 12000 руб. Референсы пришлю.&lt;/p&gt;</description>
+    <pubDate>Mon, 01 Sep 2026 09:00:00 +0300</pubDate>
+  </item>
+  <item>
+    <title>Смонтировать свадебное видео, кадрировать</title>
+    <link>https://www.fl.ru/projects/2222222/svadebnoe-video.html</link>
+    <description>Нужен монтаж свадебного видео из отснятого материала, 3-5 минут.</description>
+    <pubDate>Mon, 01 Sep 2026 08:00:00 +0300</pubDate>
+  </item>
+  <item>
+    <title>Landing page для онлайн-курса</title>
+    <link>https://www.fl.ru/projects/3333333/landing-kurs.html</link>
+    <description>Сделать лендинг на Tilda для запуска онлайн-курса. Бюджет 20 000 руб.</description>
+    <pubDate>Mon, 01 Sep 2026 07:00:00 +0300</pubDate>
+  </item>
+</channel></rss>

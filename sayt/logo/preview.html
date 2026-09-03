@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Про двоих — логотип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Golos+Text:wght@400;500&display=swap">
+<style>
+  @font-face{ font-family:'CruinnDesc'; src:url('_cruinn-subset.woff2') format('woff2'); font-weight:400; font-display:swap; }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:'Golos Text',system-ui,sans-serif; background:#EFEAE2; color:#33302E; line-height:1.6; }
+  .wrap{ max-width:960px; margin:0 auto; padding:48px 24px 100px; }
+  h1{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; margin:0 0 6px; }
+  .note{ color:#6E625B; font-size:14px; margin:0 0 40px; max-width:62ch; }
+  h2{ font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#8A7F76; margin:44px 0 14px; }
+  .pair{ display:grid; grid-template-columns:1fr 1fr; gap:2px; border:1px solid #D6D0C4; border-radius:4px; overflow:hidden; }
+  .cell{ padding:40px; display:flex; align-items:center; justify-content:center; min-height:210px; }
+  .light{ background:#F7EFE9; } .dark{ background:#241C1A; }
+  .cell svg{ width:100%; height:auto; max-width:360px; }
+  .cell.small svg{ max-width:150px; }
+  .dark svg text{ fill:#F1E8E2 !important; }
+  .dark svg .desc{ fill:#B7A99F !important; }
+  .dark svg circle[stroke="#33302E"]{ stroke:#F1E8E2 !important; }
+  .header{ background:#F7EFE9; border:1px solid #D6D0C4; border-radius:4px; display:flex; align-items:center; justify-content:space-between; padding:18px 28px; margin-top:14px; flex-wrap:wrap; gap:14px; }
+  .header nav{ font-size:14px; color:#6E625B; display:flex; gap:22px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Про двоих — логотип</h1>
+  <p class="note">Правки внесены: буквы больше не обрезаются слева (добавил поле), описательная строка подвинута ближе к слову и набрана шрифтом <b>Cruinn Thin</b> из «шрифты/основной-текст». Что ещё?</p>
+
+  <h2>Основной логотип — светлый / тёмный фон</h2>
+  <div class="pair">
+    <div class="cell light">
+      <svg viewBox="0 0 470 252" xmlns="http://www.w3.org/2000/svg">
+        <defs><mask id="wA"><rect width="470" height="252" fill="#fff"/><circle cx="267" cy="106" r="13" fill="#000"/></mask></defs>
+        <g fill="#33302E">
+          <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="185" y="114" text-anchor="end">ПР</text>
+          <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="185" y="187" text-anchor="end">ДВ</text>
+          <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="299" y="187" text-anchor="start">ИХ</text>
+        </g>
+        <circle cx="240" cy="150" r="52" fill="none" stroke="#33302E" stroke-width="5"/>
+        <circle cx="240" cy="76" r="40" fill="none" stroke="#C08A82" stroke-width="5" mask="url(#wA)"/>
+        <text class="desc" style="font-family:'CruinnDesc','Golos Text',sans-serif;font-size:16px;letter-spacing:0.34em" x="36" y="234" fill="#6E625B">САЙТЫ-ПРИГЛАШЕНИЯ НА СВАДЬБУ</text>
+      </svg>
+    </div>
+    <div class="cell dark">
+      <svg viewBox="0 0 470 252" xmlns="http://www.w3.org/2000/svg">
+        <defs><mask id="wB"><rect width="470" height="252" fill="#fff"/><circle cx="267" cy="106" r="13" fill="#000"/></mask></defs>
+        <g fill="#33302E">
+          <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="185" y="114" text-anchor="end">ПР</text>
+          <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="185" y="187" text-anchor="end">ДВ</text>
+          <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="299" y="187" text-anchor="start">ИХ</text>
+        </g>
+        <circle cx="240" cy="150" r="52" fill="none" stroke="#33302E" stroke-width="5"/>
+        <circle cx="240" cy="76" r="40" fill="none" stroke="#C08A82" stroke-width="5" mask="url(#wB)"/>
+        <text class="desc" style="font-family:'CruinnDesc','Golos Text',sans-serif;font-size:16px;letter-spacing:0.34em" x="36" y="234" fill="#6E625B">САЙТЫ-ПРИГЛАШЕНИЯ НА СВАДЬБУ</text>
+      </svg>
+    </div>
+  </div>
+
+  <h2>Уменьшенный — как в шапке сайта</h2>
+  <div class="header">
+    <svg viewBox="0 0 470 252" xmlns="http://www.w3.org/2000/svg" style="height:82px;width:auto">
+      <defs><mask id="wH"><rect width="470" height="252" fill="#fff"/><circle cx="267" cy="106" r="13" fill="#000"/></mask></defs>
+      <g fill="#33302E">
+        <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="185" y="114" text-anchor="end">ПР</text>
+        <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="185" y="187" text-anchor="end">ДВ</text>
+        <text style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:118px;letter-spacing:0.05em" x="299" y="187" text-anchor="start">ИХ</text>
+      </g>
+      <circle cx="240" cy="150" r="52" fill="none" stroke="#33302E" stroke-width="5"/>
+      <circle cx="240" cy="76" r="40" fill="none" stroke="#C08A82" stroke-width="5" mask="url(#wH)"/>
+      <text style="font-family:'CruinnDesc','Golos Text',sans-serif;font-size:16px;letter-spacing:0.34em" x="36" y="234" fill="#6E625B">САЙТЫ-ПРИГЛАШЕНИЯ НА СВАДЬБУ</text>
+    </svg>
+    <nav><span>Работы</span><span>Как это работает</span><span>Оставить заявку</span></nav>
+  </div>
+</div>
+</body>
+</html>

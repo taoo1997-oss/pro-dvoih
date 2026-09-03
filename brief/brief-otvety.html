@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Полученные брифы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#A9746B; --accent-deep:#8A5B53;
+    --page:#F1EEF4; --card:#FFFFFF; --ink:#2E2A28; --soft:#6B635E; --line:#E4DFDA;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--page); color:var(--ink); font-family:'Manrope',system-ui,sans-serif; line-height:1.6; }
+  .wrap{ max-width:720px; margin:0 auto; padding:56px 16px 100px; }
+  .top{ text-align:center; margin-bottom:40px; }
+  .top h1{ font-family:'Playfair Display',serif; font-weight:600; font-size:26px; margin:0 0 8px; }
+  .top .private{
+    display:inline-block; margin-top:10px; font-size:11px; text-transform:uppercase; letter-spacing:0.16em;
+    color:var(--accent-deep); border:1px solid var(--line); border-radius:999px; padding:6px 16px;
+  }
+  .card{ background:var(--card); border:1px solid var(--line); border-top:6px solid var(--accent);
+    border-radius:12px; padding:26px 26px; margin-bottom:22px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+  .card h2{ font-family:'Playfair Display',serif; font-style:italic; font-weight:500; font-size:22px; margin:0 0 2px; }
+  .card .ts{ font-size:13px; color:var(--soft); margin-bottom:18px; }
+  .row{ padding:11px 0; border-bottom:1px solid var(--line); }
+  .row:last-child{ border-bottom:none; }
+  .row .l{ font-weight:600; font-size:13.5px; margin-bottom:3px; }
+  .row .v{ font-size:15px; white-space:pre-wrap; }
+  .empty{ text-align:center; color:var(--soft); font-style:italic; padding:60px 0; }
+  .bar{ display:flex; gap:10px; justify-content:center; margin-top:8px; }
+  .btn{
+    padding:12px 28px; background:var(--accent); color:#fff; border:none; border-radius:8px;
+    font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  }
+  .btn.ghost{ background:transparent; color:var(--accent-deep); border:1px solid var(--line); }
+  .btn:hover{ background:var(--accent-deep); }
+  .btn.ghost:hover{ background:#fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Полученные брифы</h1>
+    <div class="private">только для студии</div>
+  </div>
+  <div id="list"><p class="empty">Загружаем…</p></div>
+  <div class="bar">
+    <button class="btn" id="refreshBtn">Обновить</button>
+    <button class="btn ghost" id="copyBtn">Скопировать всё текстом</button>
+  </div>
+</div>
+
+<script>
+  function esc(s){ return String(s).replace(/</g,'&lt;'); }
+  var CACHE = [];
+
+  async function render(){
+    var list = document.getElementById('list');
+    try{
+      var res = await window.storage.get('brief_submissions', true);
+      var subs = (res && res.value) ? JSON.parse(res.value) : [];
+      CACHE = subs;
+      if(!subs.length){ list.innerHTML = '<p class="empty">Пока никто не отправил бриф.</p>'; return; }
+      subs.sort(function(a,b){ return b.ts - a.ts; });
+      list.innerHTML = subs.map(function(sub){
+        var date = new Date(sub.ts).toLocaleString('ru-RU', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        var rows = sub.answers.map(function(a){
+          return '<div class="row"><div class="l">' + esc(a.label) + '</div><div class="v">' + esc(a.value) + '</div></div>';
+        }).join('');
+        return '<div class="card"><h2>' + esc(sub.title) + '</h2><div class="ts">' + date + '</div>' + rows + '</div>';
+      }).join('');
+    }catch(err){
+      list.innerHTML = '<p class="empty">Пока никто не отправил бриф.</p>';
+    }
+  }
+
+  function copyAll(){
+    if(!CACHE.length) return;
+    var text = CACHE.map(function(sub){
+      var date = new Date(sub.ts).toLocaleString('ru-RU');
+      var head = '=== ' + sub.title + ' (' + date + ') ===';
+      var body = sub.answers.map(function(a){ return a.label + ': ' + a.value; }).join('\n');
+      return head + '\n' + body;
+    }).join('\n\n');
+    navigator.clipboard.writeText(text).then(function(){
+      var b = document.getElementById('copyBtn');
+      b.textContent = 'Скопировано';
+      setTimeout(function(){ b.textContent = 'Скопировать всё текстом'; }, 1500);
+    });
+  }
+
+  render();
+  document.getElementById('refreshBtn').addEventListener('click', render);
+  document.getElementById('copyBtn').addEventListener('click', copyAll);
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Список гостей — Кирилл и Полина</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tenor+Sans&family=Golos+Text:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#24382A; --bg:#F0F2E9; --bg-2:#E0E6D3;
+    --accent:#4C7A4E; --accent-deep:#375C39;
+    --line:rgba(36,56,42,0.16); --text:#26362B; --text-soft:#5F6E5C;
+    --font-head:'Tenor Sans', system-ui, sans-serif; --font-text:'Golos Text', system-ui, sans-serif; --font-accent:'Great Vibes', 'Segoe Script', cursive;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:var(--font-text); background:var(--bg); color:var(--text); line-height:1.7; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:640px; margin:0 auto; padding:72px 24px 100px; }
+  .top{ text-align:center; margin-bottom:48px; }
+  .top .script{ font-family:var(--font-accent); font-size:clamp(34px,7vw,46px); color:var(--accent-deep); margin-bottom:10px; }
+  .top .note{ color:var(--text-soft); font-size:15px; }
+  .top .private{
+    display:inline-block; margin-top:16px; font-size:11px; text-transform:uppercase; letter-spacing:0.16em;
+    color:var(--accent-deep); border:1px solid var(--line); border-radius:999px; padding:6px 16px;
+  }
+  .summary{
+    display:flex; justify-content:center; gap:clamp(20px,6vw,44px); margin:0 0 48px; padding:26px 0;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line); flex-wrap:wrap;
+  }
+  .summary-item{ text-align:center; }
+  .summary-num{ font-family:var(--font-head); font-size:clamp(26px,5vw,34px); color:var(--accent-deep); }
+  .summary-label{ font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-soft); margin-top:6px; }
+  h2{ font-family:var(--font-head); font-style:italic; font-weight:500; text-align:center; margin:0 0 32px; font-size:24px; }
+  .group{ margin-bottom:40px; }
+  .group-title{ text-transform:uppercase; letter-spacing:0.16em; font-size:11px; color:var(--text-soft); margin-bottom:8px; }
+  .guest-entry{ padding:16px 4px; border-bottom:1px solid var(--line); }
+  .guest-entry:first-child{ border-top:1px solid var(--line); }
+  .g-main{ font-size:17px; }
+  .g-extra{ font-size:14px; color:var(--text-soft); margin-top:4px; }
+  .g-note{ font-size:13px; color:var(--text-soft); font-style:italic; margin-top:4px; }
+  .g-declined .g-main{ color:var(--text-soft); text-decoration:line-through; }
+  .empty{ text-align:center; color:var(--text-soft); font-style:italic; padding:40px 0; }
+  .refresh{
+    display:block; margin:48px auto 0; padding:13px 34px; background:var(--accent); color:#fff;
+    border:none; border-radius:999px; font-family:var(--font-text); font-size:14px; letter-spacing:0.06em;
+    text-transform:uppercase; cursor:pointer; transition:background .2s ease;
+  }
+  .refresh:hover{ background:var(--accent-deep); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="script">Кирилл и Полина</div>
+      <div class="note">29 мая 2027 · «Аптекарский огород»</div>
+      <div class="private">только для вас</div>
+    </div>
+
+    <div class="summary">
+      <div class="summary-item"><div class="summary-num" id="sPeople">—</div><div class="summary-label">человек придёт</div></div>
+      <div class="summary-item"><div class="summary-num" id="sYes">—</div><div class="summary-label">заявок прислали</div></div>
+    </div>
+
+    <h2>Ответы гостей</h2>
+    <div id="guestListContainer"><p class="empty">Загружаем список...</p></div>
+    <button class="refresh" id="refreshBtn">Обновить список</button>
+  </div>
+
+<script>
+  function esc(s){ return String(s).replace(/</g,'&lt;'); }
+  async function renderGuestList(){
+    var container = document.getElementById('guestListContainer');
+    try{
+      var res = await window.storage.get('guest_list_09_kirill_i_polina_botanika', true);
+      var list = (res && res.value) ? JSON.parse(res.value) : [];
+      if(!list.length){
+        container.innerHTML = '<p class="empty">Пока никто не ответил.</p>';
+        document.getElementById('sPeople').textContent = '0';
+        document.getElementById('sYes').textContent = '0';
+        return;
+      }
+      var people = 0;
+      list.forEach(function(entry){
+        var extras = entry.guests || [];
+        people += 1 + extras.length;
+      });
+      function rowHtml(entry){
+        var extras = entry.guests || [];
+        var extraHtml = extras.length ? '<div class="g-extra">+ ' + extras.map(esc).join(', ') + '</div>' : '';
+        var noteHtml = entry.note ? '<div class="g-note">' + esc(entry.note) + '</div>' : '';
+        return '<div class="guest-entry">' +
+               '<div class="g-main">' + esc(entry.name || '') + '</div>' + extraHtml + noteHtml + '</div>';
+      }
+      container.innerHTML = '<div class="group">' + list.map(rowHtml).join('') + '</div>';
+      document.getElementById('sPeople').textContent = String(people);
+      document.getElementById('sYes').textContent = String(list.length);
+    }catch(err){
+      container.innerHTML = '<p class="empty">Пока никто не ответил.</p>';
+      document.getElementById('sPeople').textContent = '0';
+      document.getElementById('sYes').textContent = '0';
+    }
+  }
+  renderGuestList();
+  document.getElementById('refreshBtn').addEventListener('click', renderGuestList);
+</script>
+</body>
+</html>

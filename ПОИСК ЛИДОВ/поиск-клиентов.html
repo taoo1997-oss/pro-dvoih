@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Поиск клиентов — панель студии</title>
+<style>
+  :root{
+    --bg:#F4F1EC; --card:#fff; --ink:#2C2622; --soft:#7A7168; --line:#E5DFD6;
+    --accent:#A9746B; --accent-deep:#8A5B53; --lead:#3E7A5B; --part:#9B6A2F; --rival:#8A5B53;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.55;
+    font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:940px;margin:0 auto;padding:26px 16px 90px;}
+  h1{font-size:21px;margin:0 0 4px;}
+  .lede{color:var(--soft);font-size:13px;margin:0 0 20px;max-width:70ch;}
+  .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:8px;}
+  .controls label{display:block;font-size:12px;color:var(--soft);margin-bottom:4px;}
+  .controls input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;}
+  #city{width:170px;} #kw{width:340px;max-width:100%;}
+  .controls .hint{font-size:11.5px;color:var(--soft);flex-basis:100%;margin-top:2px;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 14px;}
+  .tab{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;
+    font:inherit;font-size:13px;cursor:pointer;color:var(--ink);}
+  .tab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .pane{display:none;} .pane.on{display:block;}
+  .grp{margin-bottom:22px;}
+  .grp > h2{font-size:14px;margin:0 0 3px;}
+  .grp > .gh{font-size:12px;color:var(--soft);margin:0 0 10px;}
+  .row{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+  .row .body{flex:1;min-width:0;}
+  .row .t{font-size:14px;font-weight:600;}
+  .row .d{font-size:12.5px;color:var(--soft);margin-top:2px;}
+  .row a.go{flex-shrink:0;align-self:center;font-size:12.5px;padding:8px 14px;border-radius:7px;
+    background:var(--accent);color:#fff;text-decoration:none;font-weight:600;white-space:nowrap;}
+  .row a.go:hover{background:var(--accent-deep);}
+  .row button.copy{flex-shrink:0;align-self:center;font-size:12px;padding:8px 12px;border-radius:7px;
+    border:1px solid var(--line);background:#fff;cursor:pointer;white-space:nowrap;}
+  .kw-hot{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .kw-hot code{background:#EFE7DE;color:var(--accent-deep);padding:3px 8px;border-radius:6px;font-size:12px;}
+  /* CRM */
+  .crm-add{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .crm-add input,.crm-add select{font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;}
+  .crm-add input.nm{width:200px;} .crm-add input.ct{width:220px;}
+  .crm-add button{font:inherit;font-size:13px;padding:8px 16px;border:none;border-radius:7px;background:var(--accent);color:#fff;cursor:pointer;}
+  table.crm{width:100%;border-collapse:collapse;font-size:13px;}
+  table.crm th{text-align:left;font-size:11px;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;padding:6px 8px;border-bottom:1px solid var(--line);}
+  table.crm td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.crm select{font:inherit;font-size:12.5px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;}
+  table.crm .del{border:none;background:none;color:var(--soft);cursor:pointer;font-size:15px;}
+  .st-0{color:var(--soft);} .st-1{color:#2f6ea5;} .st-2{color:var(--part);} .st-3{color:var(--lead);font-weight:600;} .st-4{color:#a5462f;}
+  .crm-tools{margin-top:10px;display:flex;gap:8px;}
+  .crm-tools button{font:inherit;font-size:12px;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;}
+  .tmpl{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:8px;}
+  .tmpl textarea{width:100%;min-height:150px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical;}
+  .tmpl button{margin-top:8px;font:inherit;font-size:12.5px;padding:8px 14px;border:none;border-radius:7px;background:var(--accent);color:#fff;cursor:pointer;}
+  .note{font-size:12px;color:var(--soft);background:#FBF6F3;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px;}
+  footer{margin-top:36px;font-size:11.5px;color:var(--soft);}
+  .flash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;
+    font-size:13px;padding:9px 16px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none;}
+  .flash.on{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Поиск клиентов — панель студии свадебных лендингов</h1>
+  <p class="lede">Пары почти не публикуют «нужен свадебный сайт» отдельным объявлением. Поэтому здесь не автопарсинг, а быстрые входы туда, где спрос реально есть: где невесты спрашивают сами, где искать партнёров, чем меряться с конкурентами и что настроить у себя. Впишите свой город и ключевые слова — все ссылки перестроятся. Работает офлайн, можно открыть с телефона.</p>
+
+  <div class="controls">
+    <div><label for="city">Город</label><input id="city" value="Москва"></div>
+    <div><label for="kw">Ключевые слова (через запятую)</label>
+      <input id="kw" value="свадебный сайт-приглашение, электронное приглашение на свадьбу, сайт на свадьбу"></div>
+    <div class="hint">Ссылки открываются на самих площадках (VK, Профи.ру, Авито и т.д.) — авторизация там, где нужна, ваша.</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-pane="leads">Лиды — где спрашивают сами</button>
+    <button class="tab" data-pane="partners">Партнёры</button>
+    <button class="tab" data-pane="rivals">Конкуренты и цены</button>
+    <button class="tab" data-pane="own">Свои каналы</button>
+  </div>
+
+  <!-- ЛИДЫ -->
+  <div class="pane on" id="leads">
+    <div class="note">Самое ценное. Невесты обсуждают подготовку в VK и в Telegram-чатах по городам — там регулярно «девочки, посоветуйте, кто делает сайт-приглашение?». Заходите раз в 1–2 дня, отвечайте по делу, ссылку на портфолио — в профиль.</div>
+
+    <div class="grp">
+      <h2>ВКонтакте</h2>
+      <div class="gh">Поиск по постам и по свадебным сообществам вашего города.</div>
+      <div class="rows" data-tpl="vk"></div>
+    </div>
+
+    <div class="grp">
+      <h2>Telegram</h2>
+      <div class="gh">Публичного веб-поиска по чатам нет — откройте приложение Telegram → поиск и вставьте фразу.</div>
+      <div class="rows" data-tpl="tg"></div>
+    </div>
+
+    <div class="grp">
+      <h2>Площадки, где клиенты постят задачи</h2>
+      <div class="gh">В отличие от Авито, здесь бывают реальные разовые заказы. Нужен аккаунт исполнителя.</div>
+      <div class="rows" data-tpl="tasks"></div>
+    </div>
+  </div>
+
+  <!-- ПАРТНЁРЫ -->
+  <div class="pane" id="partners">
+    <div class="note">Самый дешёвый и масштабируемый канал. Один свадебный организатор ведёт 15–60 свадеб в год, и у каждой пары спрашивают про электронное приглашение. Найдите 20–30 подрядчиков в городе и предложите: реферальные 15–25% / white-label / шаблон в подарок клиенту + апселл кастома вам.</div>
+
+    <div class="grp">
+      <h2>Где искать партнёров в городе</h2>
+      <div class="rows" data-tpl="partners"></div>
+    </div>
+
+    <div class="grp">
+      <h2>Сообщение для первого контакта</h2>
+      <div class="tmpl">
+        <textarea id="pitch"></textarea>
+        <button onclick="copyEl('pitch')">Скопировать текст</button>
+      </div>
+    </div>
+
+    <div class="grp">
+      <h2>Мини-CRM партнёров</h2>
+      <div class="gh">Сохраняется в этом браузере. Экспорт — текстом в буфер.</div>
+      <div class="crm-add">
+        <input class="nm" id="pName" placeholder="Имя / студия">
+        <input class="ct" id="pContact" placeholder="Контакт: @ник, телефон, ссылка">
+        <select id="pType">
+          <option>организатор</option><option>фотограф</option><option>декоратор</option>
+          <option>площадка</option><option>полиграфия</option><option>другое</option>
+        </select>
+        <button onclick="crmAdd()">Добавить</button>
+      </div>
+      <table class="crm"><thead><tr><th>Кто</th><th>Тип</th><th>Контакт</th><th>Статус</th><th></th></tr></thead>
+        <tbody id="crmBody"></tbody></table>
+      <div class="crm-tools">
+        <button onclick="crmExport()">Скопировать список</button>
+        <button onclick="crmClear()">Очистить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КОНКУРЕНТЫ -->
+  <div class="pane" id="rivals">
+    <div class="note">Смотрите чужие офферы и цены — чтобы правильно назвать свою. Часть исполнителей отсюда — тоже потенциальные партнёры (кто делает много и завален заказами).</div>
+    <div class="grp"><h2>Объявления и биржи</h2><div class="rows" data-tpl="rivals"></div></div>
+    <div class="grp"><h2>Готовые сервисы-конструкторы (сравнить цены и функции)</h2><div class="rows" data-tpl="services"></div></div>
+  </div>
+
+  <!-- СВОИ КАНАЛЫ -->
+  <div class="pane" id="own">
+    <div class="note">Основной поток дадут не поиски, а свой лендинг + реклама на горячие запросы и постоянный контент. Портфолио у вас уже есть — соберите из него посадочную.</div>
+
+    <div class="grp">
+      <h2>Яндекс.Директ — горячие запросы</h2>
+      <div class="gh">Люди с прямым намерением купить. Тест — 500–1000 ₽/день.</div>
+      <div class="kw-hot" id="hotKw"></div>
+      <div class="rows" data-tpl="direct"></div>
+    </div>
+
+    <div class="grp">
+      <h2>Контент и таргет</h2>
+      <div class="rows" data-tpl="content"></div>
+    </div>
+
+    <div class="grp">
+      <h2>Чек-лист запуска</h2>
+      <div class="rows" data-tpl="checklist"></div>
+    </div>
+  </div>
+
+  <footer>
+    Панель не собирает данные и никуда их не отправляет — только формирует ссылки и хранит CRM партнёров в этом браузере.
+    Автоматический сбор с FL.ru / Kwork / Telegram — в приложении <code>lead-finder</code> (запуск <code>run.bat</code>).
+  </footer>
+</div>
+<div class="flash" id="flash"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const enc = encodeURIComponent;
+let CITY = "Москва", KWS = [];
+
+function flash(t){ const f=$("#flash"); f.textContent=t; f.classList.add("on"); setTimeout(()=>f.classList.remove("on"),1400); }
+function copy(text){ navigator.clipboard.writeText(text).then(()=>flash("Скопировано")); }
+function copyEl(id){ copy($("#"+id).value); }
+
+// ---- источники ссылок; {city} и {kw} подставляются ----
+const TPL = {
+  vk: () => [
+    ["Поиск по постам VK", "Свежие сообщения по вашим ключам", "https://vk.com/search?c[section]=statuses&c[q]="+enc(KWS.join(" "))],
+    ["Поиск: «кто делает сайт-приглашение»", "Прямые вопросы невест", "https://vk.com/search?c[section]=statuses&c[q]="+enc("кто делает сайт приглашение свадьба")],
+    ["Свадебные сообщества "+CITY, "Вступить, читать обсуждения и комментарии", "https://vk.com/search?c[section]=communities&c[q]="+enc("невесты "+CITY)],
+    ["Сообщества: «свадьба "+CITY+" 2027»", "Чаты и паблики по датам", "https://vk.com/search?c[section]=communities&c[q]="+enc("свадьба "+CITY+" 2027")],
+    ["«Подслушано у невест» "+CITY, "Там часто спрашивают подрядчиков", "https://vk.com/search?c[section]=communities&c[q]="+enc("подслушано невест "+CITY)],
+  ],
+  tg: () => [
+    ["Поиск в Telegram: «невесты "+CITY+"»", "Открыть Telegram → поиск → вставить", "COPY:невесты "+CITY],
+    ["Поиск: «свадьба "+CITY+" чат»", "Городские чаты подготовки к свадьбе", "COPY:свадьба "+CITY+" чат"],
+    ["Поиск: «сайт-приглашение»", "По сообщениям в чатах, где вы уже состоите", "COPY:сайт-приглашение"],
+    ["tgstat — каталог чатов", "Найти свадебные чаты по городу и вступить", "https://tgstat.ru/search?q="+enc("невесты "+CITY)],
+  ],
+  tasks: () => [
+    ["Профи.ру — создание сайтов", "Категория, где клиенты оставляют заказы", "https://profi.ru/create-website/"],
+    ["Профи.ру — лендинги", "", "https://profi.ru/create-website/landing/"],
+    ["YouDo — поиск заданий", "Разовые задачи заказчиков", "https://youdo.com/tasks-all-opened-all/?q="+enc("свадебный сайт")],
+    ["YouDo — раздел «Сайты»", "", "https://youdo.com/design-web/websites/"],
+    ["Kwork — биржа проектов", "Запросы покупателей по вашим ключам", "https://kwork.ru/projects?keyword="+enc("свадебн")],
+    ["Хабр Фриланс — заказы", "Иногда бывают свадебные лендинги", "https://freelance.habr.com/tasks?q="+enc("лендинг свадьба")],
+  ],
+  partners: () => [
+    ["VK: свадебные организаторы "+CITY, "Написать про партнёрство / white-label", "https://vk.com/search?c[section]=communities&c[q]="+enc("свадебный организатор "+CITY)],
+    ["VK: свадебные фотографы "+CITY, "У них спрашивают про приглашения постоянно", "https://vk.com/search?c[section]=communities&c[q]="+enc("свадебный фотограф "+CITY)],
+    ["Instagram: #свадебныйорганизатор"+translit(CITY), "Смотреть аккаунты, писать в директ", "https://www.instagram.com/explore/tags/"+enc("свадебныйорганизатор"+translit(CITY).toLowerCase())+"/"],
+    ["Instagram: #свадьба"+translit(CITY), "", "https://www.instagram.com/explore/tags/"+enc("свадьба"+translit(CITY).toLowerCase())+"/"],
+    ["Яндекс: свадебные агентства "+CITY, "Список с сайтами и контактами", "https://yandex.ru/search/?text="+enc("свадебное агентство "+CITY+" контакты")],
+    ["Авито: услуги «свадебный организатор» "+CITY, "", "https://www.avito.ru/all?q="+enc("свадебный организатор "+CITY)],
+    ["wedding.ws — каталог подрядчиков", "Организаторы, декораторы, площадки", "https://wedding.ws/"],
+    ["Площадки: лофты и усадьбы "+CITY, "У площадок можно оставить визитки / стать рекомендованным подрядчиком", "https://yandex.ru/search/?text="+enc("лофт для свадьбы "+CITY)],
+  ],
+  rivals: () => [
+    ["Авито: «свадебный сайт приглашение»", "Чужие офферы и цены", "https://www.avito.ru/all?q="+enc("свадебный сайт приглашение")],
+    ["Авито: «электронное приглашение свадьба»", "", "https://www.avito.ru/all?q="+enc("электронное приглашение свадьба")],
+    ["Kwork: кворки «свадебный сайт»", "Средние цены за пакет", "https://kwork.ru/search?query="+enc("свадебный сайт")],
+    ["Яндекс: «свадебный сайт-приглашение заказать»", "Первая страница = ваши прямые конкуренты", "https://yandex.ru/search/?text="+enc("свадебный сайт-приглашение заказать")],
+    ["Instagram: #сайтприглашение", "Как оформляют портфолио и офферы", "https://www.instagram.com/explore/tags/"+enc("сайтприглашение")+"/"],
+    ["Pinterest: wedding website", "Визуальные тренды", "https://ru.pinterest.com/search/pins/?q="+enc("wedding website invitation")],
+  ],
+  services: () => [
+    ["vas-priglashaet.ru", "Популярный конструктор — тарифы, функции", "https://vas-priglashaet.ru/"],
+    ["todაy / wedwebsite-подобные", "Поиск конструкторов приглашений", "https://yandex.ru/search/?text="+enc("конструктор свадебного сайта приглашения тарифы")],
+    ["The Knot / Zola (зарубеж.)", "Как сделано у лидеров рынка", "https://www.theknot.com/gs/wedding-websites"],
+  ],
+  direct: () => [
+    ["Яндекс.Директ — создать кампанию", "Поиск, гео = "+CITY+", ключи ниже", "https://direct.yandex.ru/"],
+    ["Проверить частотность (Wordstat)", "Сколько людей ищут эти запросы", "https://wordstat.yandex.ru/#!/?words="+enc("свадебный сайт приглашение")],
+    ["Google Ads (доп. канал)", "", "https://ads.google.com/"],
+  ],
+  content: () => [
+    ["Instagram — оформить портфолио", "Каждая работа = карусель: обложка + видео скролла экрана", "https://www.instagram.com/"],
+    ["Pinterest — пины на страницы портфолио", "Долгий бесплатный трафик из свадебных досок", "https://www.pinterest.ru/"],
+    ["VK Реклама — таргет «помолвлен(а)»", "Семейное положение + интерес «подготовка к свадьбе»", "https://ads.vk.com/"],
+  ],
+  checklist: () => [
+    ["1. Собрать посадочную студии", "Из portfolio/index.html + одна работа как демо, форма заявки", "#"],
+    ["2. Запустить Директ на 10–15 горячих ключей", "Бюджет-тест 500–1000 ₽/день, 1–2 недели", "#"],
+    ["3. Список 20–30 партнёров в городе", "Организаторы + фотографы, вкладка «Партнёры» → CRM", "#"],
+    ["4. Instagram + Pinterest с портфолио", "5–7 работ, закреп с оффером и ценой", "#"],
+    ["5. Просить пары упоминать студию", "Ссылка в сторис + подпись «сайт сделала студия X», скидка за упоминание", "#"],
+  ],
+};
+
+const HOT_KEYWORDS = [
+  "свадебный сайт приглашение", "сайт-приглашение на свадьбу", "электронное приглашение на свадьбу",
+  "сайт на свадьбу заказать", "лендинг на свадьбу", "свадебный лендинг", "пригласительный сайт",
+  "приглашение на свадьбу онлайн", "digital приглашение свадьба", "сайт для гостей свадьба",
+];
+
+function translit(s){
+  const m={а:"a",б:"b",в:"v",г:"g",д:"d",е:"e",ё:"e",ж:"zh",з:"z",и:"i",й:"y",к:"k",л:"l",м:"m",
+    н:"n",о:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ф:"f",х:"h",ц:"c",ч:"ch",ш:"sh",щ:"sch",ъ:"",ы:"y",
+    ь:"",э:"e",ю:"yu",я:"ya"," ":""};
+  return s.toLowerCase().split("").map(c=>m[c]??c).join("");
+}
+
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function renderRow(t,d,url){
+  if(url && url.startsWith("COPY:")){
+    const phrase = url.slice(5);
+    return `<div class="row"><div class="body"><div class="t">${esc(t)}</div><div class="d">${esc(d)}</div></div>
+      <button class="copy" onclick="copy(${JSON.stringify(phrase)})">Копировать фразу</button></div>`;
+  }
+  const go = (url && url!=="#") ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">Открыть →</a>` : "";
+  return `<div class="row"><div class="body"><div class="t">${esc(t)}</div><div class="d">${esc(d)}</div></div>${go}</div>`;
+}
+
+function renderAll(){
+  CITY = $("#city").value.trim() || "город";
+  KWS = $("#kw").value.split(",").map(s=>s.trim()).filter(Boolean);
+  document.querySelectorAll(".rows[data-tpl]").forEach(box=>{
+    const fn = TPL[box.dataset.tpl];
+    box.innerHTML = fn ? fn().map(r=>renderRow(...r)).join("") : "";
+  });
+  $("#hotKw").innerHTML = HOT_KEYWORDS.map(k=>`<code>${esc(k)}</code>`).join("");
+  $("#hotKw").onclick = ()=>copy(HOT_KEYWORDS.join("\n"));
+  buildPitch();
+}
+
+function buildPitch(){
+  $("#pitch").value =
+`Здравствуйте! Я делаю свадебные сайты-приглашения (сайт-визитка пары: обложка, программа дня, карта, форма «приду / не приду», список гостей). Портфолио: [ссылка].
+
+Предлагаю сотрудничество для ваших пар в ${CITY}:
+— вы рекомендуете — я плачу 20% с каждого заказа;
+— или white-label: сайт под вашим брендом, делаю я;
+— или простой шаблон дарите клиенту как бонус, а кастом (свой дизайн, доп. блоки) — уже мой апселл.
+
+Срок — 3–5 дней, правки включены. Готов сделать один сайт бесплатно для вашей ближайшей пары, чтобы вы посмотрели качество. Как вам такой вариант?`;
+}
+
+// ---- CRM партнёров (localStorage) ----
+const CRM_KEY = "wl_partners_crm_v1";
+const ST = ["не связывались","написали","переговоры","партнёр","отказ"];
+function crmLoad(){ try{ return JSON.parse(localStorage.getItem(CRM_KEY)||"[]"); }catch(e){ return []; } }
+function crmSave(a){ try{ localStorage.setItem(CRM_KEY, JSON.stringify(a)); }catch(e){} }
+function crmRender(){
+  const a = crmLoad(); const b = $("#crmBody");
+  if(!a.length){ b.innerHTML = `<tr><td colspan="5" style="color:var(--soft);font-style:italic;padding:14px 8px">Пока пусто. Добавляйте подрядчиков из вкладки «Партнёры».</td></tr>`; return; }
+  b.innerHTML = a.map((p,i)=>`<tr>
+    <td>${esc(p.name)}</td><td>${esc(p.type)}</td><td>${esc(p.contact)}</td>
+    <td><select onchange="crmStatus(${i},this.value)" class="st-${p.status||0}">
+      ${ST.map((s,si)=>`<option value="${si}" ${si==(p.status||0)?"selected":""}>${s}</option>`).join("")}
+    </select></td>
+    <td><button class="del" onclick="crmDel(${i})" title="Удалить">×</button></td></tr>`).join("");
+}
+function crmAdd(){
+  const name=$("#pName").value.trim(); if(!name) return flash("Впишите имя");
+  const a=crmLoad(); a.push({name, contact:$("#pContact").value.trim(), type:$("#pType").value, status:0});
+  crmSave(a); $("#pName").value=""; $("#pContact").value=""; crmRender();
+}
+function crmStatus(i,v){ const a=crmLoad(); if(a[i]){ a[i].status=+v; crmSave(a); crmRender(); } }
+function crmDel(i){ const a=crmLoad(); a.splice(i,1); crmSave(a); crmRender(); }
+function crmClear(){ if(confirm("Очистить весь список партнёров?")){ crmSave([]); crmRender(); } }
+function crmExport(){
+  const a=crmLoad(); if(!a.length) return flash("Список пуст");
+  copy(a.map(p=>`${p.name} | ${p.type} | ${p.contact} | ${ST[p.status||0]}`).join("\n"));
+}
+
+// ---- вкладки ----
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".pane").forEach(x=>x.classList.remove("on"));
+  t.classList.add("on"); $("#"+t.dataset.pane).classList.add("on");
+}));
+["#city","#kw"].forEach(s=>$(s).addEventListener("input", renderAll));
+renderAll(); crmRender();
+</script>
+</body>
+</html>

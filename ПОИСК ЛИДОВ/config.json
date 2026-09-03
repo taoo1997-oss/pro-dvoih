@@ -1,0 +1,57 @@
+{
+  "_comment": "Настройки поиска. Меняйте ключевые слова и источники под себя. После правки просто нажмите «Поиск» снова.",
+
+  "keywords_wedding": [
+    "свадеб", "свадьб", "wedding", "венчан", "молодожен", "молодожён",
+    "невест", "жених", "бракосочетан", "помолвк", "на свадьбу", "för bröllop"
+  ],
+  "keywords_site": [
+    "лендинг", "ленд ", "landing", "сайт", "сайт-приглашен", "страничк", "страница",
+    "приглашени", "invite", "invitation", "one page", "one-page", "onepage",
+    "одностраничник", "одностраничн", "промостраниц", "промо-страниц", "микросайт",
+    "mini site", "mini-site", "tilda", "тильда", "taplink", "сайт-визитк", "визитк"
+  ],
+  "keywords_negative": [
+    "фотограф", "видеограф", "видеосъём", "видеосъем", "монтаж видео", "смонтир",
+    "ведущий", "ведущая", "тамада", "платье", "торт", "букет", "флорист",
+    "декор зала", "оформление зала", "распорядитель", "стилист", "макияж",
+    "печать приглашен", "полиграф", "типограф", "пригласительные открытки"
+  ],
+  "phrases_bonus": [
+    "сайт-приглашение", "свадебный сайт", "свадебный лендинг", "свадебный ленд",
+    "лендинг на свадьбу", "сайт на свадьбу", "wedding landing", "wedding site",
+    "wedding invitation", "пригласительный сайт", "приглашение на свадьбу сайт"
+  ],
+
+  "fl_ru_feeds": [
+    "https://www.fl.ru/rss/projects.xml",
+    "https://www.fl.ru/rss/projects.xml?category=5",
+    "https://www.fl.ru/rss/projects.xml?category=8",
+    "https://www.fl.ru/rss/all.xml"
+  ],
+  "kwork_pages": 4,
+  "kwork_categories": ["", "11", "13"],
+
+  "telegram_channels": ["workzavr", "rabota_freelancer", "udalenka_it"],
+
+  "manual_links": [
+    { "source": "Avito", "title": "Авито · услуги: «свадебный сайт приглашение»",
+      "url": "https://www.avito.ru/rossiya/predlozheniya_uslug?q=%D1%81%D0%B2%D0%B0%D0%B4%D0%B5%D0%B1%D0%BD%D1%8B%D0%B9+%D1%81%D0%B0%D0%B9%D1%82+%D0%BF%D1%80%D0%B8%D0%B3%D0%BB%D0%B0%D1%88%D0%B5%D0%BD%D0%B8%D0%B5",
+      "note": "Открывает поиск на Авито. Смотрите объявления с пометкой «Ищу / нужен»." },
+    { "source": "Avito", "title": "Авито · услуги: «свадебный лендинг»",
+      "url": "https://www.avito.ru/rossiya/predlozheniya_uslug?q=%D1%81%D0%B2%D0%B0%D0%B4%D0%B5%D0%B1%D0%BD%D1%8B%D0%B9+%D0%BB%D0%B5%D0%BD%D0%B4%D0%B8%D0%BD%D0%B3",
+      "note": "" },
+    { "source": "Профи.ру", "title": "Профи.ру · создание сайтов",
+      "url": "https://profi.ru/create-website/",
+      "note": "Зарегистрируйтесь как исполнитель, чтобы получать заказы клиентов в этой категории." },
+    { "source": "YouDo", "title": "YouDo · задания: «свадебный сайт»",
+      "url": "https://youdo.com/tasks-all-opened-all/?q=%D1%81%D0%B2%D0%B0%D0%B4%D0%B5%D0%B1%D0%BD%D1%8B%D0%B9+%D1%81%D0%B0%D0%B9%D1%82",
+      "note": "Задания заказчиков. Отклик — через аккаунт исполнителя YouDo." },
+    { "source": "Kwork", "title": "Kwork · биржа проектов: «свадебн»",
+      "url": "https://kwork.ru/projects?keyword=%D1%81%D0%B2%D0%B0%D0%B4%D0%B5%D0%B1%D0%BD",
+      "note": "Живой поиск по бирже Kwork (эти же проекты приложение парсит автоматически)." },
+    { "source": "Профи.ру", "title": "Профи.ру · лендинги",
+      "url": "https://profi.ru/create-website/landing/",
+      "note": "" }
+  ]
+}

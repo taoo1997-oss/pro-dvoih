@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Запуск свадебной студии</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#ECEAE3; --surface:#F6F4EE; --surface-2:#E3DFD4;
+    --ink:#262420; --ink-soft:#5A554C; --ink-faint:#8A8375;
+    --line:#D4CFC3; --line-soft:#E0DCD1;
+    --accent:#7E4A55; --accent-soft:#A56E77; --accent-wash:#EFE4E4;
+    --sage:#63765E; --sage-wash:#E4E9E0;
+    --font-display:'Spectral','Times New Roman',serif;
+    --font-body:'Golos Text',system-ui,-apple-system,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    --measure:68ch;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#1B1A17; --surface:#232120; --surface-2:#2C2925;
+      --ink:#E9E5DC; --ink-soft:#A39C8E; --ink-faint:#7E7768;
+      --line:#38352E; --line-soft:#302D28;
+      --accent:#CB8D96; --accent-soft:#B0737E; --accent-wash:#2E2326;
+      --sage:#8CA284; --sage-wash:#212722;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1B1A17; --surface:#232120; --surface-2:#2C2925;
+    --ink:#E9E5DC; --ink-soft:#A39C8E; --ink-faint:#7E7768;
+    --line:#38352E; --line-soft:#302D28;
+    --accent:#CB8D96; --accent-soft:#B0737E; --accent-wash:#2E2326;
+    --sage:#8CA284; --sage-wash:#212722;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--font-body); font-size:16px; line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{ max-width:820px; margin:0 auto; padding:clamp(28px,6vw,72px) clamp(20px,5vw,40px) 120px; }
+
+  a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; text-decoration-thickness:1px; }
+
+  /* ---------- header ---------- */
+  header{ border-bottom:1px solid var(--line); padding-bottom:28px; margin-bottom:44px; }
+  .kicker{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--accent); margin:0 0 14px;
+  }
+  h1{
+    font-family:var(--font-display); font-weight:600; font-size:clamp(30px,6vw,46px);
+    line-height:1.08; letter-spacing:-0.01em; margin:0 0 16px; text-wrap:balance;
+  }
+  .lede{ font-size:17px; color:var(--ink-soft); max-width:var(--measure); margin:0 0 18px; }
+  .meta{ font-family:var(--font-mono); font-size:12.5px; color:var(--ink-faint); }
+
+  /* ---------- section frame ---------- */
+  section{ margin-top:52px; }
+  h2{
+    font-family:var(--font-display); font-weight:600; font-size:clamp(21px,3.4vw,27px);
+    line-height:1.2; margin:0 0 6px; letter-spacing:-0.005em; text-wrap:balance;
+  }
+  .h2-sub{ color:var(--ink-soft); font-size:15px; margin:0 0 22px; max-width:var(--measure); }
+
+  /* ---------- snapshot ---------- */
+  .snapshot{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:2px;
+    background:var(--line); border:1px solid var(--line); border-radius:3px; overflow:hidden;
+  }
+  .snap-col{ background:var(--surface); padding:20px 22px; }
+  .snap-col h3{
+    font-family:var(--font-mono); font-size:11.5px; letter-spacing:0.12em; text-transform:uppercase;
+    margin:0 0 12px; color:var(--ink-faint);
+  }
+  .snap-col ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .snap-col li{ font-size:14.5px; line-height:1.5; padding-left:20px; position:relative; color:var(--ink-soft); }
+  .snap-col li::before{ position:absolute; left:0; top:0; font-family:var(--font-mono); }
+  .snap-col.have li::before{ content:"✓"; color:var(--sage); }
+  .snap-col.need li::before{ content:"→"; color:var(--accent); }
+
+  /* ---------- phases ---------- */
+  .phase{
+    display:grid; grid-template-columns:64px 1fr; gap:clamp(14px,3vw,30px);
+    padding:30px 0; border-top:1px solid var(--line);
+  }
+  .phase:first-of-type{ border-top:2px solid var(--ink); }
+  .phase-num{
+    font-family:var(--font-display); font-size:40px; line-height:1; color:var(--accent-soft);
+    font-weight:400; font-feature-settings:"lnum"; padding-top:2px;
+  }
+  .phase-body h3{
+    font-family:var(--font-display); font-weight:600; font-size:20px; line-height:1.25;
+    margin:0 0 4px; color:var(--ink); text-wrap:balance;
+  }
+  .phase-goal{ color:var(--ink-soft); font-size:14.5px; margin:0 0 8px; }
+  .term{
+    display:inline-block; font-family:var(--font-mono); font-size:11.5px; letter-spacing:0.04em;
+    color:var(--ink-soft); background:var(--surface-2); border-radius:2px; padding:3px 9px; margin-bottom:16px;
+  }
+  ul.actions{ margin:0 0 16px; padding:0; list-style:none; display:flex; flex-direction:column; gap:9px; }
+  ul.actions li{ font-size:15px; line-height:1.55; padding-left:24px; position:relative; }
+  ul.actions li::before{
+    content:""; position:absolute; left:4px; top:9px; width:7px; height:7px;
+    border:1.5px solid var(--accent-soft); border-radius:1px;
+  }
+  ul.actions li strong{ font-weight:600; }
+  .done-when{
+    font-size:14px; line-height:1.55; padding:12px 16px; border-left:3px solid var(--sage);
+    background:var(--sage-wash); border-radius:0 3px 3px 0;
+  }
+  .done-when b{
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--sage); display:block; margin-bottom:3px; font-weight:500;
+  }
+
+  /* ---------- metrics ---------- */
+  .metrics{ border:1px solid var(--line); border-radius:3px; overflow:hidden; }
+  .metrics .row{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:13px 20px; border-top:1px solid var(--line-soft); background:var(--surface);
+  }
+  .metrics .row:first-child{ border-top:none; }
+  .metrics .row span{ font-size:14.5px; color:var(--ink-soft); }
+  .metrics .row b{
+    font-family:var(--font-mono); font-size:15px; color:var(--ink); font-weight:500;
+    font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .metrics-note{ font-size:13.5px; color:var(--ink-faint); margin:12px 0 0; }
+
+  /* ---------- table ---------- */
+  .table-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:3px; }
+  table{ border-collapse:collapse; width:100%; min-width:560px; font-size:14px; }
+  th,td{ text-align:left; padding:11px 16px; border-top:1px solid var(--line-soft); vertical-align:top; }
+  thead th{
+    border-top:none; background:var(--surface-2); font-family:var(--font-mono);
+    font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); font-weight:500;
+  }
+  tbody tr{ background:var(--surface); }
+  td:first-child{ font-weight:600; color:var(--ink); }
+  .pill{
+    display:inline-block; font-family:var(--font-mono); font-size:11px; padding:2px 8px; border-radius:2px;
+    letter-spacing:0.02em;
+  }
+  .pill.hi{ background:var(--accent-wash); color:var(--accent); }
+  .pill.mid{ background:var(--surface-2); color:var(--ink-soft); }
+  .pill.lo{ background:var(--sage-wash); color:var(--sage); }
+
+  /* ---------- callout ---------- */
+  .callout{
+    margin-top:52px; padding:22px 24px; border:1px solid var(--accent-soft);
+    border-left-width:3px; border-radius:0 3px 3px 0; background:var(--accent-wash);
+  }
+  .callout h2{ margin-bottom:12px; }
+  .callout ul{ margin:0; padding-left:20px; display:flex; flex-direction:column; gap:7px; }
+  .callout li{ font-size:14.5px; line-height:1.55; }
+
+  footer{ margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-size:13px; color:var(--ink-faint); }
+
+  @media (max-width:560px){
+    .phase{ grid-template-columns:1fr; gap:6px; }
+    .phase-num{ font-size:30px; }
+  }
+  @media print{
+    body{ background:#fff; color:#000; }
+    .phase,.callout,.metrics .row,tbody tr,.snap-col{ background:#fff !important; }
+    .phase{ break-inside:avoid; }
+    a{ color:#000; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <p class="kicker">Свадебные лендинги · дорожная карта</p>
+    <h1>Запуск и раскрутка свадебной студии</h1>
+    <p class="lede">Продукт готов: 14 работ, 7 шаблонов, автосборка, бриф, RSVP. Дальше выигрывает не тот, кто строит ещё, а тот, кто решает дистрибуцию. Ниже — по этапам, что делать и по какому признаку этап закрыт.</p>
+    <p class="meta">Обновлено 3 сентября 2026 · базовая цена 3&nbsp;500&nbsp;₽ · срок 3–4 дня</p>
+  </header>
+
+  <section>
+    <h2>Где ты сейчас</h2>
+    <p class="h2-sub">Честный снимок. Всё слева — сделано и работает. Всё справа — дыра, которую закрывают этапы ниже.</p>
+    <div class="snapshot">
+      <div class="snap-col have">
+        <h3>Готово</h3>
+        <ul>
+          <li>14 работ, 7 шаблонов, идемпотентная сборка</li>
+          <li>Бриф: веб-форма + Google-док</li>
+          <li>RSVP и приватный список гостей</li>
+          <li>Канал в Telegram, оффер закреплён</li>
+          <li>Авито — 1 объявление (Москва)</li>
+          <li>List.am — объявление (Ереван)</li>
+        </ul>
+      </div>
+      <div class="snap-col need">
+        <h3>Нет</h3>
+        <ul>
+          <li>Потока заявок</li>
+          <li>Ни одного отзыва</li>
+          <li>Ни одного партнёра</li>
+          <li>Instagram-аккаунта</li>
+          <li>Легального приёма оплат (ИП на патенте «танцы» — платформы с верификацией закрыты)</li>
+        </ul>
+      </div>
+    </div>
+    <p class="metrics-note">Первые заказы берёшь переводом на карту как физлицо — это не мешает начать. Легализация оплат — этап&nbsp;4, не блокер.</p>
+  </section>
+
+  <section>
+    <h2>Этапы</h2>
+    <p class="h2-sub">Порядок обязателен: нельзя гнать трафик на витрину, которая не продаёт, и нельзя запускать платную рекламу без отзывов. Этапы&nbsp;2 и&nbsp;3 идут параллельно с первым.</p>
+
+    <div class="phase">
+      <div class="phase-num">0</div>
+      <div class="phase-body">
+        <h3>Витрина готова принять трафик</h3>
+        <p class="phase-goal">Прежде чем звать людей — убедиться, что там, куда они придут, всё конвертит.</p>
+        <span class="term">2–3 дня</span>
+        <ul class="actions">
+          <li>Опубликовать все 14 работ артефактами, собрать одну ссылку-витрину</li>
+          <li>Проверить каждую <strong>с телефона</strong>: карта, обратный отсчёт, форма RSVP, переносы текста, цвета дресс-кода</li>
+          <li>Завести Instagram: аватар из <code>для телеграм/аватар/</code>, в шапке — оффер в 3 строки + ссылка на витрину</li>
+          <li>Highlights / закреп: 5–6 лучших работ каруселями из <code>для телеграм/скрины/</code></li>
+          <li>Отдельный пост-закреп: цена, что входит, как заказать — текст из <code>для телеграм/ОФЕР-закреп.md</code></li>
+        </ul>
+        <p class="done-when"><b>Готово, когда</b> незнакомый человек с телефона за минуту понимает: что это, сколько стоит, как заказать.</p>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num">1</div>
+      <div class="phase-body">
+        <h3>Первые 5 заказов — через людей, не рекламу</h3>
+        <p class="phase-goal">Задача этапа — не заработать, а получить отзывы и первых партнёров. Они конвертят следующих сильнее любого портфолио.</p>
+        <span class="term">недели 1–3</span>
+        <ul class="actions">
+          <li>Первым 5 парам — <strong>2&nbsp;900&nbsp;₽</strong> в обмен на отзыв в обсуждении канала</li>
+          <li>Личные соцсети: пост «я делаю вот это» + 3 лучшие работы, попросить друзей репостнуть</li>
+          <li><strong>10–15 сообщений в день</strong> партнёрам — папка <code>партнеры/</code>: фотографы, ведущие, организаторы</li>
+          <li>2–3 полезных ответа в свадебных чатах (посты B и C из <code>РОСТ-посты-и-взаимопиар.md</code>) — без прямой рекламы</li>
+          <li>Вести <code>партнеры/*/трекер-*.csv</code>: сколько написал / сколько ответили</li>
+        </ul>
+        <p class="done-when"><b>Готово, когда</b> 5 оплаченных заказов, 3 отзыва в обсуждении, 3 партнёра ответили «да».</p>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num">2</div>
+      <div class="phase-body">
+        <h3>Instagram как постоянная витрина</h3>
+        <p class="phase-goal">Не для мгновенных продаж — чтобы у каждой заявки было куда посмотреть и чтобы новые пары находили сами.</p>
+        <span class="term">недели 2–8, параллельно</span>
+        <ul class="actions">
+          <li>Постинг <strong>3–4 раза в неделю</strong>: карусель работы · «до/после брифа» · польза (как звать гостей, что писать в приглашении)</li>
+          <li><strong>Reels</strong> — пролистывание лендинга на телефоне под трендовый звук. Дёшево делать, лучше всего заходит</li>
+          <li>Хэштеги: <code>#свадьба2027 #приглашениенасвадьбу #сайтприглашение</code> + город</li>
+          <li>Отвечать на каждый комментарий и реакцию в сторис — алгоритм это поднимает</li>
+          <li>Раз в неделю — репост свежего отзыва</li>
+        </ul>
+        <p class="done-when"><b>Готово, когда</b> опубликовано 30 постов и из директа приходят 2–3 заявки в неделю.</p>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num">3</div>
+      <div class="phase-body">
+        <h3>Партнёрка на потоке</h3>
+        <p class="phase-goal">Согласившихся партнёров довести до первой совместной свадьбы и сделать канал повторяемым.</p>
+        <span class="term">недели 4–12</span>
+        <ul class="actions">
+          <li>Одностраничник для партнёров: условия, примеры, реф-ссылка — отдельным артефактом</li>
+          <li>White-label для агентств: в подвале «подготовлено для…», цена <strong>3&nbsp;000&nbsp;₽/работа</strong>, их наценка любая</li>
+          <li>Каждому активному партнёру — раз в месяц: напоминание + новая работа в пример</li>
+          <li>Считать долю заказов от партнёров в общем потоке</li>
+        </ul>
+        <p class="done-when"><b>Готово, когда</b> 5+ активных партнёров и от них приходит не меньше 40% заказов.</p>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num">4</div>
+      <div class="phase-body">
+        <h3>Поднять чек и легализовать оплаты</h3>
+        <p class="phase-goal">Есть отзывы и поток — можно перестать демпинговать и открыть закрытые площадки.</p>
+        <span class="term">месяц 3+</span>
+        <ul class="actions">
+          <li>После 10 отзывов: базовая цена <strong>3&nbsp;500 → 4&nbsp;500&nbsp;₽</strong></li>
+          <li>Платные допы: срочно за 24&nbsp;ч +1&nbsp;500 · английская версия +1&nbsp;200 · доп. круг правок +500</li>
+          <li>Консультация бухгалтера по релокантам: самозанятость открывает Kwork, Авито&nbsp;Про, договоры с юрлицами — <strong>без расчётного счёта</strong></li>
+          <li>Авито: платное продвижение 1–2 объявлений в Москве, если окупается</li>
+        </ul>
+        <p class="done-when"><b>Готово, когда</b> средний чек ≥ 4&nbsp;500&nbsp;₽, оплаты принимаются легально, 10–15 заказов в месяц.</p>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num">5</div>
+      <div class="phase-body">
+        <h3>Масштаб — снять с себя производство</h3>
+        <p class="phase-goal">По желанию. Потолок соло — 10–15 лендингов в месяц (см. <code>тест/ОТЧЕТ.md</code>). Дальше — только через команду или автоматизацию.</p>
+        <span class="term">месяц 6+</span>
+        <ul class="actions">
+          <li><strong>Либо команда:</strong> человек на сборку (3–5 лендингов в день) + человек на продажи и переписку</li>
+          <li><strong>Либо самообслуживание:</strong> веб-форма → запись в формате <code>concepts.py</code> → автосборка, ты только принимаешь QA и публикуешь. База к этому готова на 80%</li>
+          <li>Цель — остаться на продукте и партнёрах, а не на конвейере</li>
+        </ul>
+        <p class="done-when"><b>Готово, когда</b> ты тратишь на один заказ 20–30 минут вместо 2–4 часов.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Метрики недели</h2>
+    <p class="h2-sub">Отслеживаешь только это. Подписчики и лайки — не метрика: они не платят.</p>
+    <div class="metrics">
+      <div class="row"><span>Исходящих сообщений партнёрам</span><b>100 / нед</b></div>
+      <div class="row"><span>Ответов от партнёров</span><b>15 / нед</b></div>
+      <div class="row"><span>Заявок в директ и личку</span><b>5 / нед</b></div>
+      <div class="row"><span>Оплаченных заказов</span><b>2 / нед → к концу месяца 2</b></div>
+      <div class="row"><span>Новых отзывов</span><b>2 / нед</b></div>
+    </div>
+    <p class="metrics-note">Цель недели — не «сколько сделал лендингов», а сколько написал и сколько ответили. Производство не бутылочное горлышко; поиск клиентов — да.</p>
+  </section>
+
+  <section>
+    <h2>Куда вкладывать силы</h2>
+    <p class="h2-sub">Каналы по соотношению «усилие / отдача» и по тому, когда включать.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Канал</th><th>Усилие</th><th>Отдача</th><th>Когда</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Партнёры: фотографы, ведущие, агентства</td><td><span class="pill hi">высокое, ручное</span></td><td><span class="pill hi">высокая, стабильная</span></td><td>с 1-го дня</td></tr>
+          <tr><td>Instagram</td><td><span class="pill mid">среднее, постоянное</span></td><td><span class="pill mid">средняя, растёт</span></td><td>с недели 2</td></tr>
+          <tr><td>Свадебные чаты — польза, не реклама</td><td><span class="pill lo">низкое</span></td><td><span class="pill mid">средняя</span></td><td>с недели 1</td></tr>
+          <tr><td>Личные соцсети, сарафан</td><td><span class="pill lo">низкое</span></td><td><span class="pill hi">высокая на старте</span></td><td>неделя 1</td></tr>
+          <tr><td>Telegram-канал</td><td><span class="pill lo">уже есть</span></td><td><span class="pill mid">нужен как «портфолио по ссылке»</span></td><td>есть</td></tr>
+          <tr><td>Авито, Москва</td><td><span class="pill lo">низкое, 1 беспл.</span></td><td><span class="pill lo">низкая без платного</span></td><td>есть</td></tr>
+          <tr><td>List.am, Ереван</td><td><span class="pill lo">низкое</span></td><td><span class="pill mid">локально, средняя</span></td><td>есть</td></tr>
+          <tr><td>Платный таргет / Директ</td><td><span class="pill hi">высокое, деньги</span></td><td><span class="pill mid">неизвестна до отзывов</span></td><td>месяц 3+</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="callout">
+    <h2>Чего не делать сейчас</h2>
+    <ul>
+      <li>Платный таргет и Директ — до того, как накопится 10 отзывов. Сольёшь бюджет.</li>
+      <li>Заходить на новые площадки, пока не выжат Instagram и партнёрка.</li>
+      <li>Опускать цену ниже 2&nbsp;900&nbsp;₽ — выглядит подозрительно дёшево, обесценивает работу.</li>
+      <li>Ждать «идеального» портфолио или новых шаблонов. Их достаточно. Не хватает не работ, а заявок.</li>
+      <li>Закрывать ИП в спешке ради платформ — сначала консультация, потом решение (этап&nbsp;4).</li>
+    </ul>
+  </div>
+
+  <footer>
+    Связанные файлы: <code>партнеры/README.md</code> — где искать и скрипты · <code>для телеграм/</code> — оффер, посты, скрины · <code>тест/ОТЧЕТ.md</code> — сколько реально уходит на один лендинг.
+  </footer>
+
+</div>
+</body>
+</html>

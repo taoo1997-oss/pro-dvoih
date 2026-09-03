@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Список гостей — Егор и Валерия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2F352A; --bg:#F2EFE6; --bg-2:#E4E1D2;
+    --accent:#7E8A6A; --accent-deep:#5E6A4C;
+    --line:rgba(47,53,42,0.16); --text:#33372C; --text-soft:#6B6E5C;
+    --font-head:'Cormorant Garamond', 'Times New Roman', serif; --font-text:'Manrope', system-ui, sans-serif; --font-accent:'Great Vibes', 'Segoe Script', cursive;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:var(--font-text); background:var(--bg); color:var(--text); line-height:1.7; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:640px; margin:0 auto; padding:72px 24px 100px; }
+  .top{ text-align:center; margin-bottom:48px; }
+  .top .script{ font-family:var(--font-accent); font-size:clamp(34px,7vw,46px); color:var(--accent-deep); margin-bottom:10px; }
+  .top .note{ color:var(--text-soft); font-size:15px; }
+  .top .private{
+    display:inline-block; margin-top:16px; font-size:11px; text-transform:uppercase; letter-spacing:0.16em;
+    color:var(--accent-deep); border:1px solid var(--line); border-radius:999px; padding:6px 16px;
+  }
+  .summary{
+    display:flex; justify-content:center; gap:clamp(20px,6vw,44px); margin:0 0 48px; padding:26px 0;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line); flex-wrap:wrap;
+  }
+  .summary-item{ text-align:center; }
+  .summary-num{ font-family:var(--font-head); font-size:clamp(26px,5vw,34px); color:var(--accent-deep); }
+  .summary-label{ font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-soft); margin-top:6px; }
+  h2{ font-family:var(--font-head); font-style:italic; font-weight:500; text-align:center; margin:0 0 32px; font-size:24px; }
+  .group{ margin-bottom:40px; }
+  .group-title{ text-transform:uppercase; letter-spacing:0.16em; font-size:11px; color:var(--text-soft); margin-bottom:8px; }
+  .guest-entry{ padding:16px 4px; border-bottom:1px solid var(--line); }
+  .guest-entry:first-child{ border-top:1px solid var(--line); }
+  .g-main{ font-size:17px; }
+  .g-extra{ font-size:14px; color:var(--text-soft); margin-top:4px; }
+  .g-note{ font-size:13px; color:var(--text-soft); font-style:italic; margin-top:4px; }
+  .g-declined .g-main{ color:var(--text-soft); text-decoration:line-through; }
+  .empty{ text-align:center; color:var(--text-soft); font-style:italic; padding:40px 0; }
+  .refresh{
+    display:block; margin:48px auto 0; padding:13px 34px; background:var(--accent); color:#fff;
+    border:none; border-radius:999px; font-family:var(--font-text); font-size:14px; letter-spacing:0.06em;
+    text-transform:uppercase; cursor:pointer; transition:background .2s ease;
+  }
+  .refresh:hover{ background:var(--accent-deep); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="script">Егор и Валерия</div>
+      <div class="note">21 августа 2027 · клуб «Сосновка»</div>
+      <div class="private">только для вас</div>
+    </div>
+
+    <div class="summary">
+      <div class="summary-item"><div class="summary-num" id="sPeople">—</div><div class="summary-label">человек придёт</div></div>
+      <div class="summary-item"><div class="summary-num" id="sYes">—</div><div class="summary-label">заявок прислали</div></div>
+    </div>
+
+    <h2>Ответы гостей</h2>
+    <div id="guestListContainer"><p class="empty">Загружаем список...</p></div>
+    <button class="refresh" id="refreshBtn">Обновить список</button>
+  </div>
+
+<script>
+  function esc(s){ return String(s).replace(/</g,'&lt;'); }
+  async function renderGuestList(){
+    var container = document.getElementById('guestListContainer');
+    try{
+      var res = {value: JSON.stringify([{"name": "Елена Лебедева", "guests": ["Роман Петров", "Мария", "Антон", "Роман"], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788213678511}, {"name": "Софья Орлова", "guests": [], "note": "У ребёнка аллергия на орехи.", "ts": 1788361294582}, {"name": "Екатерина Орлова", "guests": [], "note": "", "ts": 1788081820889}, {"name": "Фёдор Тарасов", "guests": [], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788090798125}, {"name": "Юлия Михайлова", "guests": ["Андрей Семёнов"], "note": "", "ts": 1788122460511}, {"name": "Илья Лебедев", "guests": ["Вера Макарова"], "note": "", "ts": 1788054983771}, {"name": "Алёна Комарова", "guests": [], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788274841433}, {"name": "Кирилл Козлов", "guests": [], "note": "", "ts": 1788265979107}, {"name": "Софья Семёнова", "guests": ["Антон Соколов", "Никита"], "note": "Вегетарианское меню, пожалуйста.", "ts": 1788406668671}, {"name": "Полина Тарасова", "guests": [], "note": "", "ts": 1788341585268}, {"name": "Марина Морозова", "guests": ["Денис Зайцев"], "note": "", "ts": 1788271460011}, {"name": "Марина Козлова", "guests": [], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788246068324}, {"name": "Елена Ковалёва", "guests": [], "note": "Без лактозы, если можно.", "ts": 1788123083895}, {"name": "Анна Смирнова", "guests": [], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788153529135}, {"name": "Кирилл Белов", "guests": ["Юлия Богданова"], "note": "Возьмём с собой сына, 5 лет, нужен детский стул.", "ts": 1788419494257}, {"name": "Екатерина Лебедева", "guests": ["Дмитрий Виноградов"], "note": "", "ts": 1788394465241}, {"name": "Дарья Волкова", "guests": [], "note": "", "ts": 1788153789583}, {"name": "Сергей Голубев", "guests": ["Наталья Морозова"], "note": "", "ts": 1788342719007}, {"name": "Мария Зайцева", "guests": ["Егор Андреев"], "note": "", "ts": 1788246780139}, {"name": "Дмитрий Павлов", "guests": ["Валерия Козлова"], "note": "У ребёнка аллергия на орехи.", "ts": 1788187278007}, {"name": "Ирина Лебедева", "guests": ["Андрей Козлов"], "note": "", "ts": 1788401587311}, {"name": "Елена Макарова", "guests": [], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788326449130}, {"name": "Кристина Петрова", "guests": ["Сергей Соловьёв"], "note": "Вегетарианское меню, пожалуйста.", "ts": 1788402765751}, {"name": "Максим Васильев", "guests": ["Алиса Киселёва"], "note": "", "ts": 1788185698271}, {"name": "Александр Комаров", "guests": [], "note": "", "ts": 1788190588823}, {"name": "Екатерина Голубева", "guests": [], "note": "Приедем на своей машине, останемся на ночь.", "ts": 1788180998236}, {"name": "Ольга Зайцева", "guests": [], "note": "У ребёнка аллергия на орехи.", "ts": 1788203262703}, {"name": "Ксения Тарасова", "guests": ["Михаил Орлов", "Елена"], "note": "Приедем на своей машине, останемся на ночь.", "ts": 1788425790200}, {"name": "Алёна Ковалёва", "guests": [], "note": "", "ts": 1788270858847}, {"name": "Илья Кузнецов", "guests": ["Ирина Киселёва"], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788270845281}, {"name": "Никита Соловьёв", "guests": [], "note": "Без лактозы, если можно.", "ts": 1788383415301}, {"name": "Андрей Васильев", "guests": ["Ирина Смирнова"], "note": "", "ts": 1788285616198}, {"name": "Александр Соловьёв", "guests": ["Анна Петрова", "Екатерина"], "note": "У ребёнка аллергия на орехи.", "ts": 1788319074423}, {"name": "Алёна Белова", "guests": [], "note": "Без лактозы, если можно.", "ts": 1788417060845}, {"name": "Юлия Павлова", "guests": [], "note": "", "ts": 1788401977279}, {"name": "Павел Морозов", "guests": ["Полина Голубева"], "note": "", "ts": 1788409838401}, {"name": "Сергей Семёнов", "guests": ["Виктория Комарова"], "note": "", "ts": 1788192257215}, {"name": "Вера Орлова", "guests": [], "note": "", "ts": 1788197743360}, {"name": "Наталья Виноградова", "guests": ["Григорий Васильев"], "note": "", "ts": 1788260998585}, {"name": "Кристина Волкова", "guests": [], "note": "", "ts": 1788306700783}, {"name": "Ксения Козлова", "guests": [], "note": "Вегетарианское меню, пожалуйста.", "ts": 1788384603151}, {"name": "Алёна Богданова", "guests": ["Артём Андреев"], "note": "У ребёнка аллергия на орехи.", "ts": 1788227166175}, {"name": "Ольга Фёдорова", "guests": ["Александр Орлов"], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788361006155}, {"name": "Софья Смирнова", "guests": ["Никита Воробьёв"], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788346619977}, {"name": "Мария Зайцева", "guests": ["Илья Лебедев"], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788336341687}, {"name": "Антон Соколов", "guests": ["Екатерина Зайцева"], "note": "", "ts": 1788300609166}, {"name": "Анна Кузнецова", "guests": ["Антон Васильев", "Полина", "Денис"], "note": "", "ts": 1788326389405}, {"name": "Юлия Петрова", "guests": [], "note": "", "ts": 1788317190289}, {"name": "Александр Фёдоров", "guests": ["Полина Воробьёва", "Илья", "Юлия", "Павел"], "note": "", "ts": 1788414729547}, {"name": "Екатерина Попова", "guests": ["Александр Комаров"], "note": "Вегетарианское меню, пожалуйста.", "ts": 1788383718436}, {"name": "Наталья Кузнецова", "guests": ["Илья Соловьёв", "Дмитрий", "Дарья"], "note": "", "ts": 1788273429711}, {"name": "Максим Соколов", "guests": [], "note": "Возьмём с собой сына, 5 лет, нужен детский стул.", "ts": 1788275695710}, {"name": "Михаил Соловьёв", "guests": [], "note": "", "ts": 1788262418095}, {"name": "Егор Соловьёв", "guests": [], "note": "", "ts": 1788382388995}, {"name": "Екатерина Павлова", "guests": [], "note": "Возьмём с собой сына, 5 лет, нужен детский стул.", "ts": 1788329388441}, {"name": "Егор Кузнецов", "guests": [], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788354631171}, {"name": "Валерия Козлова", "guests": ["Андрей Волков", "Максим"], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788287191531}, {"name": "Александр Виноградов", "guests": [], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788305549546}, {"name": "Алиса Павлова", "guests": [], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788392074315}, {"name": "Ирина Попова", "guests": [], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788318081845}, {"name": "Валерия Павлова", "guests": [], "note": "", "ts": 1788279690551}, {"name": "Иван Фёдоров", "guests": [], "note": "", "ts": 1788333344776}, {"name": "Владимир Тарасов", "guests": [], "note": "Без лактозы, если можно.", "ts": 1788291578041}, {"name": "Наталья Комарова", "guests": ["Дмитрий Белов", "Валерия"], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788286815474}, {"name": "Никита Фёдоров", "guests": [], "note": "Без лактозы, если можно.", "ts": 1788341353831}, {"name": "Ольга Комарова", "guests": [], "note": "Вегетарианское меню, пожалуйста.", "ts": 1788355519391}, {"name": "Денис Соловьёв", "guests": [], "note": "", "ts": 1788318703347}, {"name": "Александр Орлов", "guests": ["Елена Виноградова"], "note": "", "ts": 1788303194584}, {"name": "Павел Новиков", "guests": [], "note": "", "ts": 1788344432639}, {"name": "Валерия Павлова", "guests": ["Григорий Комаров"], "note": "", "ts": 1788372578838}, {"name": "Илья Богданов", "guests": ["Наталья Андреева"], "note": "Возьмём с собой сына, 5 лет, нужен детский стул.", "ts": 1788394132681}, {"name": "Анна Павлова", "guests": ["Александр Богданов", "Софья"], "note": "Вегетарианское меню, пожалуйста.", "ts": 1788362432781}, {"name": "Валерия Семёнова", "guests": ["Илья Комаров", "Алёна", "Елена", "Ирина"], "note": "", "ts": 1788402397831}, {"name": "Екатерина Фёдорова", "guests": ["Андрей Попов"], "note": "", "ts": 1788330407086}, {"name": "Григорий Макаров", "guests": [], "note": "У ребёнка аллергия на орехи.", "ts": 1788403027155}, {"name": "Кирилл Воробьёв", "guests": ["Юлия Орлова"], "note": "", "ts": 1788429815661}, {"name": "Павел Волков", "guests": [], "note": "", "ts": 1788405740119}, {"name": "Софья Комарова", "guests": ["Кирилл Кузнецов", "Алёна"], "note": "Без лактозы, если можно.", "ts": 1788370835798}, {"name": "Андрей Петров", "guests": [], "note": "", "ts": 1788400063631}, {"name": "Артём Морозов", "guests": [], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788398560144}, {"name": "Ксения Павлова", "guests": [], "note": "", "ts": 1788354433291}, {"name": "Дмитрий Петров", "guests": [], "note": "Возьмём с собой сына, 5 лет, нужен детский стул.", "ts": 1788361137174}, {"name": "Вера Комарова", "guests": ["Сергей Морозов", "Юлия", "Екатерина", "Тимур"], "note": "Возьмём с собой сына, 5 лет, нужен детский стул.", "ts": 1788431491585}, {"name": "Антон Зайцев", "guests": [], "note": "", "ts": 1788419767905}, {"name": "Артём Фёдоров", "guests": ["Алиса Фёдорова"], "note": "", "ts": 1788387231535}, {"name": "Павел Морозов", "guests": [], "note": "Без лактозы, если можно.", "ts": 1788377252131}, {"name": "Фёдор Киселёв", "guests": [], "note": "Приедем на своей машине, останемся на ночь.", "ts": 1788387940619}, {"name": "Ольга Комарова", "guests": [], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788408911358}, {"name": "Иван Тарасов", "guests": ["Анна Васильева", "Полина", "Фёдор"], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788410271967}, {"name": "Кирилл Михайлов", "guests": ["Мария Киселёва", "Дмитрий", "Андрей", "Анна"], "note": "Без лактозы, если можно.", "ts": 1788398692492}, {"name": "Татьяна Соловьёва", "guests": ["Никита Петров", "Екатерина"], "note": "Возьмём с собой сына, 5 лет, нужен детский стул.", "ts": 1788397614921}, {"name": "Кирилл Тарасов", "guests": ["Наталья Семёнова"], "note": "Приедем на своей машине, останемся на ночь.", "ts": 1788418181674}, {"name": "Дмитрий Михайлов", "guests": ["Ксения Соловьёва"], "note": "", "ts": 1788417447423}, {"name": "Татьяна Тарасова", "guests": ["Кирилл Васильев", "Егор", "Алиса"], "note": "Возьмём с собой сына, 5 лет, нужен детский стул.", "ts": 1788422936055}, {"name": "Екатерина Козлова", "guests": ["Владимир Зайцев"], "note": "Нужен трансфер от площади Минина, нас двое.", "ts": 1788430715263}, {"name": "Ирина Голубева", "guests": ["Дмитрий Новиков", "Ирина", "Алёна", "Владимир"], "note": "У ребёнка аллергия на орехи.", "ts": 1788432382621}, {"name": "Григорий Тарасов", "guests": ["Татьяна Зайцева", "Наталья"], "note": "", "ts": 1788418402451}, {"name": "Никита Новиков", "guests": [], "note": "Без лактозы, если можно.", "ts": 1788429558961}, {"name": "Вера Волкова", "guests": ["Денис Тарасов"], "note": "Будем чуть позже — доедем к церемонии.", "ts": 1788426560567}, {"name": "Андрей Тарасов", "guests": [], "note": "", "ts": 1788432823441}])};
+      var list = (res && res.value) ? JSON.parse(res.value) : [];
+      if(!list.length){
+        container.innerHTML = '<p class="empty">Пока никто не ответил.</p>';
+        document.getElementById('sPeople').textContent = '0';
+        document.getElementById('sYes').textContent = '0';
+        return;
+      }
+      var people = 0;
+      list.forEach(function(entry){
+        var extras = entry.guests || [];
+        people += 1 + extras.length;
+      });
+      function rowHtml(entry){
+        var extras = entry.guests || [];
+        var extraHtml = extras.length ? '<div class="g-extra">+ ' + extras.map(esc).join(', ') + '</div>' : '';
+        var noteHtml = entry.note ? '<div class="g-note">' + esc(entry.note) + '</div>' : '';
+        return '<div class="guest-entry">' +
+               '<div class="g-main">' + esc(entry.name || '') + '</div>' + extraHtml + noteHtml + '</div>';
+      }
+      container.innerHTML = '<div class="group">' + list.map(rowHtml).join('') + '</div>';
+      document.getElementById('sPeople').textContent = String(people);
+      document.getElementById('sYes').textContent = String(list.length);
+    }catch(err){
+      container.innerHTML = '<p class="empty">Пока никто не ответил.</p>';
+      document.getElementById('sPeople').textContent = '0';
+      document.getElementById('sYes').textContent = '0';
+    }
+  }
+  renderGuestList();
+  document.getElementById('refreshBtn').addEventListener('click', renderGuestList);
+</script>
+</body>
+</html>

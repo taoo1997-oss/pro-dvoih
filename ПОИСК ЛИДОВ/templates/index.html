@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Поиск клиентов · свадебные лендинги</title>
+<style>
+  :root{
+    --bg:#F4F1EC; --card:#fff; --ink:#2C2622; --soft:#7A7168; --line:#E5DFD6;
+    --accent:#A9746B; --accent-deep:#8A5B53; --ok:#3E7A5B; --warn:#B5643C;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.55;
+    font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:960px;margin:0 auto;padding:30px 18px 90px;}
+  h1{font-size:22px;margin:0 0 4px;}
+  .lede{color:var(--soft);font-size:13.5px;margin:0 0 22px;}
+  .bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+  button.primary{background:var(--accent);color:#fff;border:none;border-radius:8px;
+    padding:13px 26px;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;}
+  button.primary:hover{background:var(--accent-deep);}
+  button.primary:disabled{opacity:.6;cursor:default;}
+  .stats{font-size:13px;color:var(--soft);}
+  .stats b{color:var(--ink);}
+  .filters{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:13px;
+    color:var(--soft);margin-bottom:20px;padding:12px 14px;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;}
+  .filters input[type=number]{width:90px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font:inherit;}
+  .filters label{display:flex;gap:6px;align-items:center;cursor:pointer;}
+  section.group{margin-bottom:26px;}
+  section.group > h2{font-size:15px;margin:0 0 4px;}
+  section.group > .ghint{font-size:12.5px;color:var(--soft);margin:0 0 12px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:10px;}
+  .card.new{border-color:var(--accent);box-shadow:0 0 0 3px rgba(169,116,107,.12);}
+  .card .row1{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;}
+  .badge{font-size:11px;padding:3px 8px;border-radius:999px;background:#EFE7DE;color:var(--accent-deep);letter-spacing:.02em;}
+  .badge.src{background:#E9EEF0;color:#3d5560;}
+  .badge.new{background:var(--accent);color:#fff;}
+  .badge.money{background:#E4F0E8;color:var(--ok);font-weight:600;}
+  .badge.date{background:transparent;color:var(--soft);}
+  .card h3{font-size:15.5px;margin:2px 0 6px;line-height:1.4;}
+  .card h3 a{color:var(--ink);text-decoration:none;}
+  .card h3 a:hover{color:var(--accent-deep);text-decoration:underline;}
+  .snippet{font-size:13px;color:#5f574f;max-height:3.4em;overflow:hidden;position:relative;transition:max-height .2s;}
+  .snippet.open{max-height:40em;}
+  .card .reasons{font-size:11.5px;color:var(--soft);margin-top:8px;}
+  .card .acts{display:flex;gap:10px;margin-top:12px;}
+  .card .acts a,.card .acts button{font-size:12.5px;padding:7px 14px;border-radius:6px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);text-decoration:none;cursor:pointer;}
+  .card .acts a.open{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;}
+  .card .acts a.open:hover{background:var(--accent-deep);}
+  .empty{color:var(--soft);font-size:13px;font-style:italic;padding:14px 0;}
+  .spinner{display:none;margin:30px auto;width:34px;height:34px;border:3px solid var(--line);
+    border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  details.errbox{margin-top:24px;font-size:12.5px;color:var(--warn);}
+  details.errbox pre{white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;color:#7a5540;}
+  .runs{margin-top:26px;font-size:12px;color:var(--soft);}
+  .runs table{border-collapse:collapse;width:100%;}
+  .runs td{padding:3px 8px;border-bottom:1px solid var(--line);}
+  footer{margin-top:40px;font-size:12px;color:var(--soft);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Поиск клиентов · свадебные лендинги</h1>
+  <p class="lede">Собирает свежие запросы заказчиков с бирж (FL.ru, Kwork), Telegram-каналов и даёт ссылки
+     на поиск по Авито / Профи.ру / YouDo. Настройки — в файле <code>config.json</code>.</p>
+
+  <div class="bar">
+    <button class="primary" id="searchBtn">Найти запросы</button>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="filters">
+    <label>Бюджет от <input type="number" id="fBudget" min="0" step="1000" placeholder="₽"></label>
+    <label><input type="checkbox" id="fNew"> только новые</label>
+    <label><input type="checkbox" id="fSimilar" checked> показывать «похожие»</label>
+    <span id="srcFilters"></span>
+  </div>
+
+  <div class="spinner" id="spinner"></div>
+  <div id="results"></div>
+
+  <details class="errbox" id="errbox" hidden>
+    <summary>Ошибки источников (<span id="errcount">0</span>)</summary>
+    <pre id="errlist"></pre>
+  </details>
+
+  <div class="runs">
+    <div style="margin-bottom:6px;">История поисков</div>
+    <table id="runsTable">
+      {% for r in runs %}
+      <tr><td>{{ r.ts | int }}</td><td>найдено {{ r.found }}</td><td>новых {{ r.new_count }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <footer>
+    Запросы обновляются самими площадками; приложение только собирает и фильтрует. Авито и Профи.ру
+    закрыты для автоматического сбора — по ним даются готовые ссылки на поиск.
+  </footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let LAST = { exact: [], similar: [], manual: [], errors: [] };
+
+function rel(ts){
+  if(!ts) return "";
+  const d = Math.floor((Date.now()/1000 - ts)/3600);
+  if(d < 1) return "только что";
+  if(d < 24) return d + " ч назад";
+  const days = Math.floor(d/24);
+  return days + " дн назад";
+}
+function money(n){ return n ? (n.toLocaleString("ru-RU") + " ₽") : ""; }
+function esc(s){ return (s||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function cardHTML(ld, manual){
+  const badges = [`<span class="badge src">${esc(ld.source)}</span>`];
+  if(ld.is_new) badges.push(`<span class="badge new">НОВОЕ</span>`);
+  if(ld.budget) badges.push(`<span class="badge money">${money(ld.budget)}</span>`);
+  if(ld.published_ts) badges.push(`<span class="badge date">${rel(ld.published_ts)}</span>`);
+  const reasons = ld.reasons ? `<div class="reasons">${esc(ld.reasons)}</div>` : "";
+  const arch = manual ? "" : `<button data-uid="${esc(ld.uid)}" class="archBtn">В архив</button>`;
+  return `<div class="card ${ld.is_new ? "new":""}">
+    <div class="row1">${badges.join("")}</div>
+    <h3><a href="${esc(ld.url)}" target="_blank" rel="noopener">${esc(ld.title)}</a></h3>
+    <div class="snippet" onclick="this.classList.toggle('open')">${esc(ld.snippet)}</div>
+    ${reasons}
+    <div class="acts">
+      <a class="open" href="${esc(ld.url)}" target="_blank" rel="noopener">Открыть запрос →</a>
+      ${arch}
+    </div>
+  </div>`;
+}
+
+function passFilters(ld){
+  const minB = parseInt($("#fBudget").value || "0", 10);
+  if(minB && (!ld.budget || ld.budget < minB)) return false;
+  if($("#fNew").checked && !ld.is_new) return false;
+  const active = [...document.querySelectorAll(".srcChk:checked")].map(c => c.value);
+  if(active.length && !active.includes(ld.source)) return false;
+  return true;
+}
+
+function render(){
+  const showSim = $("#fSimilar").checked;
+  const ex = LAST.exact.filter(passFilters);
+  const sim = showSim ? LAST.similar.filter(passFilters) : [];
+  let html = "";
+  html += `<section class="group"><h2>Точные совпадения</h2>
+    <p class="ghint">Есть и «свадьба», и «сайт/лендинг/приглашение».</p>
+    ${ex.length ? ex.map(l => cardHTML(l,false)).join("") : '<div class="empty">Пока ничего. Нажмите «Найти запросы» или зайдите позже — такие заказы редкие.</div>'}</section>`;
+  if(showSim){
+    html += `<section class="group"><h2>Похожие запросы</h2>
+      <p class="ghint">Лендинги и одностраничники без слова «свадьба» — можно предложить свои услуги.</p>
+      ${sim.length ? sim.map(l => cardHTML(l,false)).join("") : '<div class="empty">Нет подходящих.</div>'}</section>`;
+  }
+  html += `<section class="group"><h2>Ручной поиск на площадках</h2>
+    <p class="ghint">Авито, Профи.ру, YouDo, Kwork — открывают поиск на самом сайте.</p>
+    ${LAST.manual.map(l => cardHTML(l,true)).join("")}</section>`;
+  $("#results").innerHTML = html;
+
+  document.querySelectorAll(".archBtn").forEach(b => b.addEventListener("click", async () => {
+    b.disabled = true;
+    await fetch("/api/archive", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({uid: b.dataset.uid, value: 1})});
+    b.closest(".card").style.display = "none";
+  }));
+}
+
+function buildSrcFilters(){
+  const srcs = [...new Set([...LAST.exact, ...LAST.similar].map(l => l.source))].sort();
+  $("#srcFilters").innerHTML = srcs.map(s =>
+    `<label><input type="checkbox" class="srcChk" value="${esc(s)}"> ${esc(s)}</label>`).join("");
+  document.querySelectorAll(".srcChk").forEach(c => c.addEventListener("change", render));
+}
+
+async function doSearch(){
+  const btn = $("#searchBtn");
+  btn.disabled = true; btn.textContent = "Ищу…"; $("#spinner").style.display = "block";
+  $("#results").innerHTML = "";
+  try{
+    const r = await fetch("/api/search", {method:"POST"});
+    const data = await r.json();
+    LAST = data;
+    const st = data.stats || {};
+    $("#stats").innerHTML = `Найдено <b>${st.kept||0}</b> · новых <b>${st.new||0}</b> · просмотрено ${st.raw||0} · ошибок ${data.errors.length}`;
+    if(data.errors.length){
+      $("#errbox").hidden = false;
+      $("#errcount").textContent = data.errors.length;
+      $("#errlist").textContent = data.errors.join("\n");
+    } else { $("#errbox").hidden = true; }
+    buildSrcFilters();
+    render();
+  }catch(e){
+    $("#results").innerHTML = `<div class="empty">Ошибка запроса: ${esc(String(e))}</div>`;
+  }finally{
+    btn.disabled = false; btn.textContent = "Найти запросы"; $("#spinner").style.display = "none";
+  }
+}
+
+async function loadCached(){
+  try{
+    const r = await fetch("/api/leads");
+    const data = await r.json();
+    const leads = data.leads || [];
+    LAST.manual = data.manual || [];
+    LAST.exact = leads.filter(l => l.bucket === "exact");
+    LAST.similar = leads.filter(l => l.bucket === "similar");
+    buildSrcFilters();
+    render();
+    if(leads.length)
+      $("#stats").textContent = `Показаны сохранённые: ${leads.length}. Нажмите «Найти запросы» для обновления.`;
+  }catch(e){/* тихо */}
+}
+
+$("#searchBtn").addEventListener("click", doSearch);
+["#fBudget","#fNew","#fSimilar"].forEach(s => $(s).addEventListener("input", render));
+loadCached();
+</script>
+</body>
+</html>
