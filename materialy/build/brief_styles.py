@@ -21,8 +21,8 @@ from pathlib import Path
 from concepts import CONCEPTS
 
 ROOT = Path(__file__).resolve().parents[2]
-BRIEF = ROOT / "brief" / "brief.html"
-STYLI = ROOT / "brief" / "styli"
+BRIEF = ROOT / "БРИФ" / "brief.html"
+STYLI = ROOT / "БРИФ" / "styli"
 
 # порядок и подписи шаблонов
 STYLES = [

@@ -21,8 +21,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
 FONTS_DIR = ROOT / "шрифты"
-BRIEF = ROOT / "brief" / "brief.html"
-SPECIMEN_PNG = ROOT / "brief" / "obraztsy-shriftov.png"
+BRIEF = ROOT / "БРИФ" / "brief.html"
+SPECIMEN_PNG = ROOT / "БРИФ" / "obraztsy-shriftov.png"
 
 SUBSET_UNICODES = ("U+0020-007E,U+00A0-00FF,U+0400-04FF,U+0490-0491,"
                    "U+2010-2015,U+2018-201F,U+2116,U+20BD,U+2026,U+00AB,U+00BB")

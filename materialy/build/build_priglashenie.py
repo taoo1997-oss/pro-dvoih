@@ -3,8 +3,8 @@
 Бумажное приглашение A5 (двусторонний макет для типографии) — платный доп +1 500 ₽.
 
 Для каждой концепции из concepts.py рендерит shablon/priglashenie-A5.template.html
-в portfolio/<slug>/priglashenie/index.html:
-  • лицевая сторона — кто приглашает и тёплые слова (как в шапке лендинга);
+в ПОРТФОЛИО/<slug>/priglashenie/index.html:
+  • лицевая сторона — фото из шапки лендинга + кто приглашает и тёплые слова;
   • оборот — что, где и когда (без блока «добавить гостей», без формы).
 
 Палитра, имена, дата и адрес берутся из той же концепции, что и лендинг —
@@ -14,6 +14,7 @@
 Печать:  открыть index.html → «Печать» → A5, двусторонняя, поля 0 → «Сохранить в PDF».
 """
 import html
+import json
 import urllib.parse
 from pathlib import Path
 
@@ -23,9 +24,22 @@ import build  # переиспуем derive() / MONTHS_GEN / WD — дата с�
 
 ROOT = Path(__file__).resolve().parents[2]
 TPL = ROOT / "shablon" / "priglashenie-A5.template.html"
-PORTF = ROOT / "portfolio"
+PORTF = ROOT / "ПОРТФОЛИО"
+IMG_DIR = ROOT / "materialy" / "foto-ishodniki"  # тот же источник фото, что у build.py
 # в макете адрес показывается текстом (не ссылкой) — без протокола, короче и без переносов
 SITE_BASE = "pro-dvoih.ru/works"
+
+
+def hero_uri(slug):
+    """data:-URI фото из шапки лендинга (ключ hero в images.json). Пусто — предупредить."""
+    jp = IMG_DIR / slug / "images.json"
+    if jp.exists():
+        uri = json.loads(jp.read_text(encoding="utf-8")).get("hero", "")
+        if uri:
+            return uri
+    print(f"  ! нет фото hero для {slug} — лицевая сторона будет без фото "
+          f"(запусти materialy/build/fetch_images.py)")
+    return ""
 
 
 def e(s):
@@ -60,7 +74,9 @@ def fields(c):
         "C_ACCENT_DEEP": c["palette"]["C_ACCENT_DEEP"],
         "C_TEXT": c["palette"]["C_TEXT"], "C_TEXT_SOFT": c["palette"]["C_TEXT_SOFT"],
         "C_ON_INK": c["palette"]["C_ON_INK"], "C_LINE": c["palette"]["C_LINE"],
-        # лицевая
+        # лицевая — фото-обложка как в шапке лендинга
+        "IMG_HERO": hero_uri(c["slug"]),
+        "HERO_FOCUS": c["palette"]["HERO_FOCUS"],
         "HERO_EYEBROW": e(c["hero_eyebrow"]),
         "NAMES": e(c["names"]),
         "INITIALS": e(c["initials"]),

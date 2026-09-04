@@ -2,7 +2,7 @@
 """
 Тесты под правки от 2026-09-04:
 
-  • витрина sayt/ — глазами посетителя: нет «RSVP», нет «14 сайтов», нет «анкеты»
+  • витрина САЙТ/ — глазами посетителя: нет «RSVP», нет «14 сайтов», нет «анкеты»
     и «перевода на карту»; есть «бриф» и объяснение, зачем он; на карточках работ —
     палитра; отзывы без служебной пометки; на «Как это работает» — платный доп
     «бумажное приглашение».
@@ -20,9 +20,9 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SAYT_DIST = ROOT / "sayt" / "dist"
+SAYT_DIST = ROOT / "САЙТ" / "dist"
 BUILD_DIR = ROOT / "materialy" / "build"
-PORTF = ROOT / "portfolio"
+PORTF = ROOT / "ПОРТФОЛИО"
 
 
 def run(*args):
@@ -32,7 +32,7 @@ def run(*args):
 
 
 def build_all():
-    run("sayt/build_sayt.py")
+    run("САЙТ/build_sayt.py")
     run("materialy/build/build_priglashenie.py")
 
 
@@ -161,11 +161,11 @@ class PaperInvitationBuild(unittest.TestCase):
     def test_na_bumage_net_dobavit_gostey_i_formy(self):
         for c in self.concepts:
             html = (PORTF / c["slug"] / "priglashenie" / "index.html").read_text(encoding="utf-8")
-            low = html.lower()
-            self.assertNotIn("добавить ещё гост", low)
-            self.assertNotIn("добавить гост", low)
-            self.assertNotIn("<form", low)
-            self.assertNotIn("rsvp", low)
+            # вырезаем data:-URI фото (в base64 случайно попадаются любые буквы)
+            markup = re.sub(r"data:image/[^\"')]+", "", html).lower()
+            self.assertNotIn("добавить гост", markup)
+            self.assertNotIn("<form", markup)
+            self.assertNotRegex(markup, r"\brsvp\b")
 
     def test_ssylka_na_lending_pary(self):
         for c in self.concepts:

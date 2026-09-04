@@ -4,10 +4,15 @@
 семь шаблонов лендинга (три базовых + четыре по референсам), генератор
 портфолио и 14 готовых работ.
 
+Основные папки проекта — заглавными, чтобы сразу цеплялись взглядом:
+`БРИФ/`, `САЙТ/` (витрина), `ПОРТФОЛИО/` (работы), `ТЕЛЕГА/` (материалы канала),
+`ПАРНЕРЫ/`. Служебное — строчными: `shablon/`, `materialy/`, `тест/`, `шрифты/`,
+`референсы/`. Скрипты сборки уже знают эти имена.
+
 ## Структура
 
 ```
-brief/          — бриф для клиента
+БРИФ/           — бриф для клиента
   brief.html            вёрстка «как Google Форма», ответы уходят в window.storage
   brief-otvety.html     приватная страница: все присланные брифы + «скопировать всё»
   brief-google-doc.md   исходник; из него сделан Google Документ (ссылка ниже)
@@ -25,7 +30,7 @@ shablon/        — семь шаблонов компоновки + прива�
   priglashenie-A5.template.html   бумажное приглашение A5, двусторонний макет для типографии (платный доп)
   README.md                       плейсхолдеры
 
-portfolio/      — 14 готовых работ + витрина
+ПОРТФОЛИО/      — 14 готовых работ + витрина
   index.html                витрина: карточки всех 14 со ссылками и меткой шаблона
   NN-<имя>-<имя>-<стиль>/
     index.html               лендинг
@@ -38,7 +43,7 @@ materialy/
     concepts.py         конфиг всех концепций (палитры, тексты, id фото)
     fetch_images.py     качает и пережимает фото с Unsplash
     build.py            рендерит лендинги + витрину + списки гостей
-    build_priglashenie.py  рендерит бумажные приглашения A5 из concepts.py в portfolio/<slug>/priglashenie/
+    build_priglashenie.py  рендерит бумажные приглашения A5 из concepts.py в ПОРТФОЛИО/<slug>/priglashenie/
     brief_fonts.py      вшивает образцы шрифтов в раздел 3 брифа
     brief_styles.py     вшивает превью стилей + палитры-кружочки в раздел 3 брифа
   foto-ishodniki/       скачанные с Unsplash фото по каждой работе + images.json
@@ -62,14 +67,14 @@ _arhiv/         — прежний проект «Константин и Юли
   https://docs.google.com/document/d/14wz6pbi9HEfStmSiuf0GUHp8MFJS1psKzA54O1SyKGM/edit
   Читать как есть или за 15 минут собрать по нему Google Форму — у каждого вопроса
   помечен тип поля.
-- **Веб-версия** → `brief/brief.html` (публикуется артефактом Claude). Ответы —
-  на `brief/brief-otvety.html`.
-- Исходник обоих — `brief/brief-google-doc.md`.
+- **Веб-версия** → `БРИФ/brief.html` (публикуется артефактом Claude). Ответы —
+  на `БРИФ/brief-otvety.html`.
+- Исходник обоих — `БРИФ/brief-google-doc.md`.
 - **Раздел 3 «Стиль и визуал»** клиент проходит не открывая портфолио:
   прямо в форме — превью 7 вариантов компоновки (каждая картинка = чекбокс) и
   10 палитр кружочками (как дресс-код в лендинге). Собирается `brief_styles.py`
-  (превью — из `brief/styli/`, палитры — из `concepts.py`). После смены шаблонов
-  или палитр: обновить скриншот в `brief/styli/<буква>.jpg` и прогнать
+  (превью — из `БРИФ/styli/`, палитры — из `concepts.py`). После смены шаблонов
+  или палитр: обновить скриншот в `БРИФ/styli/<буква>.jpg` и прогнать
   `python materialy/build/brief_styles.py`.
 
 ## Шаблоны
@@ -109,7 +114,7 @@ D — 11 · E — 12 · F — 13 · G — 14.
 2. `python materialy/build/fetch_images.py` — скачает и пережмёт фото, положит
    `images.json` в `materialy/foto-ishodniki/<slug>/`. (Или вручную положите
    `hero.jpg` + `g1/g2/g3.jpg` и соберите `images.json` = `{role: "data:image/jpeg;base64,…"}`.)
-3. `python materialy/build/build.py` — соберёт `portfolio/<slug>/index.html`
+3. `python materialy/build/build.py` — соберёт `ПОРТФОЛИО/<slug>/index.html`
    и `spisok-gostey.html`, обновит витрину.
 4. Опубликуйте `index.html` артефактом Claude → ссылка паре.
    `spisok-gostey.html` — отдельным артефактом, ссылка только для пары.
@@ -132,21 +137,21 @@ D — 11 · E — 12 · F — 13 · G — 14.
 - **Бумажное приглашение A5 — +1 500 ₽.** Двусторонний макет под типографию:
   лицо — кто приглашает и тёплые слова (текст из `intro_lead`), оборот — что,
   где и когда. Блока «добавить гостей» и формы на бумаге нет.
-  `python materialy/build/build_priglashenie.py` собирает `portfolio/<slug>/priglashenie/index.html`
+  `python materialy/build/build_priglashenie.py` собирает `ПОРТФОЛИО/<slug>/priglashenie/index.html`
   из той же концепции, что и лендинг (палитра и данные всегда совпадают).
 - **Комплект для гостей без интернета.** Тот же сайт в виде PDF и картинок —
   переслать в мессенджере или распечатать тем, кому неудобно открывать ссылку.
 
 PDF-ы (бумажное приглашение и лендинг) + PNG экранов делает
-`для телеграм/скрипты/pack.js` через headless-Edge:
+`ТЕЛЕГА/скрипты/pack.js` через headless-Edge:
 
 ```
 python materialy/build/build_priglashenie.py     # HTML-макеты A5 для всех 14
-cd "для телеграм/скрипты" && node pack.js         # PDF + картинки; node pack.js 03 — одна работа
+cd "ТЕЛЕГА/скрипты" && node pack.js         # PDF + картинки; node pack.js 03 — одна работа
 ```
 
-Итог: `portfolio/<slug>/priglashenie/priglashenie-A5.pdf`,
-`portfolio/<slug>/dlya-gostey/priglashenie-sayt.pdf` и `.../dlya-gostey/screens/*.png`.
+Итог: `ПОРТФОЛИО/<slug>/priglashenie/priglashenie-A5.pdf`,
+`ПОРТФОЛИО/<slug>/dlya-gostey/priglashenie-sayt.pdf` и `.../dlya-gostey/screens/*.png`.
 Печать приглашения: браузер → «Печать» → A5, двусторонняя (переворот по длинному краю), поля 0.
 
 ## Портфолио — 14 работ

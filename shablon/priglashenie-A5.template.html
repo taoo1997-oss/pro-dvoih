@@ -30,7 +30,7 @@
   }
   .page + .page{ page-break-before:always; }
   .frame{
-    position:absolute; inset:9mm; border:1px solid var(--c-line);
+    position:absolute; inset:9mm; border:1px solid var(--c-line); z-index:2;
     display:flex; flex-direction:column; align-items:center; text-align:center;
     padding:14mm 12mm;
   }
@@ -44,21 +44,43 @@
   }
   .spacer{ flex:1 1 auto; }
 
-  /* ── лицевая ── */
+  /* ── лицевая: фото-обложка как в шапке лендинга ── */
+  .cover-photo{
+    position:absolute; inset:0; width:100%; height:100%; z-index:0;
+    object-fit:cover; object-position:{{HERO_FOCUS}};
+  }
+  .cover-scrim{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(180deg,
+      rgba(10,10,12,0.34) 0%, rgba(10,10,12,0.08) 20%, rgba(10,10,12,0) 38%,
+      rgba(10,10,12,0.40) 60%, rgba(10,10,12,0.70) 80%, rgba(10,10,12,0.88) 100%);
+  }
+  .page--cover .frame{
+    justify-content:flex-end; border-color:rgba(255,255,255,0.45); color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,0.5), 0 3px 22px rgba(0,0,0,0.55);
+  }
+  .page--cover .frame::after{ border-color:rgba(255,255,255,0.45); }
+  .page--cover .eyebrow{ color:rgba(255,255,255,0.92); }
+
   .names{
     font-family:var(--script); font-weight:400; color:var(--c-ink);
     font-size:52pt; line-height:1.04; margin:6mm 0 4mm;
   }
+  .page--cover .names{ color:#fff; }
   .rule{ display:flex; align-items:center; gap:5mm; color:var(--c-accent); margin:2mm 0 6mm; }
   .rule i{ display:block; width:22mm; height:1px; background:currentColor; }
   .rule b{ font-size:12pt; }
+  .page--cover .rule{ color:rgba(255,255,255,0.85); }
   .lead{
     font-family:var(--serif); font-style:italic; font-size:15.5pt; line-height:1.5;
     color:var(--c-text); max-width:34ch;
   }
+  .page--cover .lead{ color:rgba(255,255,255,0.95); }
   .front-date{
     font-size:11pt; letter-spacing:.28em; color:var(--c-text-soft); font-weight:500;
+    margin-top:6mm;
   }
+  .page--cover .front-date{ color:rgba(255,255,255,0.9); }
 
   /* ── оборот ── */
   .back-title{
@@ -96,14 +118,14 @@
 </head>
 <body>
 
-<section class="page" aria-label="Лицевая сторона">
+<section class="page page--cover" aria-label="Лицевая сторона">
+  <img class="cover-photo" src="{{IMG_HERO}}" alt="{{NAMES}}">
+  <div class="cover-scrim"></div>
   <div class="frame">
     <p class="eyebrow">{{HERO_EYEBROW}}</p>
-    <div class="spacer"></div>
     <h1 class="names">{{NAMES}}</h1>
     <div class="rule"><i></i><b>{{INITIALS}}</b><i></i></div>
     <p class="lead">{{INTRO_LEAD}}</p>
-    <div class="spacer"></div>
     <p class="front-date">{{DATE_NUMERIC}}</p>
   </div>
 </section>

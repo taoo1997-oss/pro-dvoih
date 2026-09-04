@@ -28,13 +28,13 @@ jobs:
           python-version: "3.12"
 
       - name: Собрать сайт
-        run: python sayt/build_sayt.py
+        run: python САЙТ/build_sayt.py
 
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: sayt/dist
+          path: САЙТ/dist
 
       - id: deploy
         uses: actions/deploy-pages@v4

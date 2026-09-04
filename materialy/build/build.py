@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Рендерит один из трёх шаблонов (shablon/{A,B,C}-*.template.html) по концепциям
-из concepts.py в portfolio/<slug>/index.html + spisok-gostey.html,
-плюс собирает витрину portfolio/index.html.
+из concepts.py в ПОРТФОЛИО/<slug>/index.html + spisok-gostey.html,
+плюс собирает витрину ПОРТФОЛИО/index.html.
 
 Запуск:  python materialy/build/build.py
 Нужно, чтобы сначала отработал fetch_images.py (нужны images.json).
@@ -18,7 +18,7 @@ from concepts import CONCEPTS
 ROOT = Path(__file__).resolve().parents[2]
 TPL_DIR = ROOT / "shablon"
 IMG_DIR = ROOT / "materialy" / "foto-ishodniki"
-PORTF = ROOT / "portfolio"
+PORTF = ROOT / "ПОРТФОЛИО"
 
 MONTHS_GEN = ["января", "февраля", "марта", "апреля", "мая", "июня",
               "июля", "августа", "сентября", "октября", "ноября", "декабря"]
@@ -312,7 +312,7 @@ def main():
         t, kb = build_concept(c, tpl_cache, guests_tpl)
         print(f"  {c['slug']:36s}  [{t}]  index.html {kb:6.0f} KB")
     build_index()
-    print("  portfolio/index.html — витрина собрана")
+    print("  ПОРТФОЛИО/index.html — витрина собрана")
     print("Готово.")
 
 
