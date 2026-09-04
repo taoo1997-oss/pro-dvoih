@@ -22,6 +22,11 @@ from pages import PAGES, SITE
 HERE = Path(__file__).resolve().parent
 DIST = HERE / "dist"
 
+# Кастомный домен GitHub Pages. Пишется в dist/CNAME при каждой сборке —
+# иначе привязка домена слетает после деплоя через GitHub Actions.
+# Пусто — файл CNAME не создаётся (сайт на *.github.io).
+DOMAIN = "pro-dvoih.ru"
+
 # где на готовом сайте будут лежать сами лендинги пар (шаг «билд под общий корень»)
 WORKS_BASE = "/works"
 
@@ -206,6 +211,10 @@ def main():
 
     shutil.copy(HERE / "styles.css", DIST / "styles.css")
     shutil.copytree(HERE / "assets", DIST / "assets", dirs_exist_ok=True)
+
+    if DOMAIN:
+        (DIST / "CNAME").write_text(DOMAIN + "\n", encoding="utf-8")
+        print(f"  CNAME -> {DOMAIN}")
 
     # лендинги пар → dist/works/<slug>/ (шаг «общий корень»)
     works_src = HERE.parent / "portfolio"
