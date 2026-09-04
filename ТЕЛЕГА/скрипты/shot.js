@@ -1,12 +1,22 @@
 const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 
 // путь к Chromium-браузеру: Edge по умолчанию, можно переопределить через BROWSER
 const EDGE = process.env.BROWSER || 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 const ROOT = path.join(__dirname, '..', '..');       // корень проекта
 const PORT = path.join(ROOT, 'ПОРТФОЛИО');
-const OUT = path.join(__dirname, '..', 'скрины');    // ТЕЛЕГА/скрины
+const OUT = path.join(__dirname, '..', 'скрины');    // ТЕЛЕГА/скрины — по slug, как раньше
+
+// папки пар в ПОРТФОЛИО теперь «NN Имена» кириллицей, а не slug — соответствие
+// берём из ПОРТФОЛИО/_meta.json (пишет python materialy/build/build.py при каждой сборке)
+const metaPath = path.join(PORT, '_meta.json');
+if (!fs.existsSync(metaPath)) {
+  console.log('нет ПОРТФОЛИО/_meta.json — сначала прогони python materialy/build/build.py');
+  process.exit(1);
+}
+const META = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
 
 const KILL_ANIM = `
   *,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}
@@ -42,9 +52,9 @@ async function autoScroll(page) {
 }
 
 (async () => {
-  const dirs = fs.readdirSync(PORT)
-    .filter((d) => /^\d\d-/.test(d) && fs.existsSync(path.join(PORT, d, 'index.html')))
-    .sort();
+  const entries = META
+    .filter((m) => fs.existsSync(path.join(PORT, m.dir, 'index.html')))
+    .sort((a, b) => a.slug.localeCompare(b.slug));
 
   const browser = await puppeteer.launch({
     executablePath: EDGE,
@@ -54,8 +64,8 @@ async function autoScroll(page) {
 
   const manifest = [];
 
-  for (const slug of dirs) {
-    const file = 'file:///' + path.join(PORT, slug, 'index.html').replace(/\\/g, '/');
+  for (const { slug, dir } of entries) {
+    const file = pathToFileURL(path.join(PORT, dir, 'index.html')).href;
     const outDir = path.join(OUT, slug);
     fs.rmSync(outDir, { recursive: true, force: true });
     fs.mkdirSync(outDir, { recursive: true });

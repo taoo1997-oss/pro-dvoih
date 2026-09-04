@@ -3,7 +3,7 @@
 Бумажное приглашение A5 (двусторонний макет для типографии) — платный доп +1 500 ₽.
 
 Для каждой концепции из concepts.py рендерит shablon/priglashenie-A5.template.html
-в ПОРТФОЛИО/<slug>/priglashenie/index.html:
+в ПОРТФОЛИО/<NN Имена>/для печати/index.html:
   • лицевая сторона — фото из шапки лендинга + кто приглашает и тёплые слова;
   • оборот — что, где и когда (без блока «добавить гостей», без формы).
 
@@ -99,12 +99,12 @@ def main():
     tpl = TPL.read_text(encoding="utf-8")
     print("Бумажные приглашения A5:")
     for c in CONCEPTS:
-        out_dir = PORTF / c["slug"] / "priglashenie"
+        out_dir = PORTF / build.dir_name(c) / "для печати"
         out_dir.mkdir(parents=True, exist_ok=True)
         page = render(tpl, fields(c))
         dst = out_dir / "index.html"
         dst.write_text(page, encoding="utf-8")
-        print(f"  {c['slug']:34s} -> {dst.relative_to(ROOT)}  ({dst.stat().st_size / 1024:.0f} КБ)")
+        print(f"  {build.dir_name(c):34s} -> {dst.relative_to(ROOT)}  ({dst.stat().st_size / 1024:.0f} КБ)")
     print(f"\nГотово: {len(CONCEPTS)} макетов. Печать — A5, двусторонняя, поля 0.")
 
 

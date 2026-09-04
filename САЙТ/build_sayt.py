@@ -109,6 +109,11 @@ def load_concepts():
         return []
 
 
+def _works_dir_name(c):
+    """Папка пары в ПОРТФОЛИО/ — та же формула, что dir_name() в materialy/build/build.py."""
+    return f'{c["order"]} {c["names"]}'
+
+
 def _fmt_date(iso):
     y, m, d = iso.split("-")
     return f"{int(d)} {MONTHS[int(m) - 1]} {y}"
@@ -226,11 +231,12 @@ def main():
         (DIST / "CNAME").write_text(DOMAIN + "\n", encoding="utf-8")
         print(f"  CNAME -> {DOMAIN}")
 
-    # лендинги пар → dist/works/<slug>/ (шаг «общий корень»)
+    # лендинги пар: читаем из ПОРТФОЛИО/<NN Имена>/, публикуем на dist/works/<slug>/
+    # (URL сайта остаётся латиницей, даже если папка на диске — кириллицей)
     works_src = HERE.parent / "ПОРТФОЛИО"
     n_works = 0
     for c in concepts:
-        lp = works_src / c["slug"] / "index.html"
+        lp = works_src / _works_dir_name(c) / "index.html"
         if lp.exists():
             dst = DIST / "works" / c["slug"]
             dst.mkdir(parents=True, exist_ok=True)

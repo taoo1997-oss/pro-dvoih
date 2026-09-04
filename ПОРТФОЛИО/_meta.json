@@ -1,0 +1,86 @@
+[
+  {
+    "dir": "01 Пётр и Анна",
+    "slug": "01-pyotr-i-anna-dusty-rose",
+    "order": "01",
+    "names": "Пётр и Анна"
+  },
+  {
+    "dir": "02 Дмитрий и Мария",
+    "slug": "02-dmitriy-i-mariya-toskana",
+    "order": "02",
+    "names": "Дмитрий и Мария"
+  },
+  {
+    "dir": "03 Александр и Екатерина",
+    "slug": "03-aleksandr-i-ekaterina-izumrud",
+    "order": "03",
+    "names": "Александр и Екатерина"
+  },
+  {
+    "dir": "04 Никита и Ольга",
+    "slug": "04-nikita-i-olga-minimal",
+    "order": "04",
+    "names": "Никита и Ольга"
+  },
+  {
+    "dir": "05 Иван и Софья",
+    "slug": "05-ivan-i-sofya-lavanda",
+    "order": "05",
+    "names": "Иван и Софья"
+  },
+  {
+    "dir": "06 Роман и Виктория",
+    "slug": "06-roman-i-viktoriya-boho",
+    "order": "06",
+    "names": "Роман и Виктория"
+  },
+  {
+    "dir": "07 Георгий и Алиса",
+    "slug": "07-georgiy-i-alisa-more",
+    "order": "07",
+    "names": "Георгий и Алиса"
+  },
+  {
+    "dir": "08 Артём и Дарья",
+    "slug": "08-artyom-i-darya-zima",
+    "order": "08",
+    "names": "Артём и Дарья"
+  },
+  {
+    "dir": "09 Кирилл и Полина",
+    "slug": "09-kirill-i-polina-botanika",
+    "order": "09",
+    "names": "Кирилл и Полина"
+  },
+  {
+    "dir": "10 Максим и Ксения",
+    "slug": "10-maksim-i-kseniya-rustik",
+    "order": "10",
+    "names": "Максим и Ксения"
+  },
+  {
+    "dir": "11 Михаил и Елена",
+    "slug": "11-mihail-i-elena-ref1",
+    "order": "11",
+    "names": "Михаил и Елена"
+  },
+  {
+    "dir": "12 Андрей и Ольга",
+    "slug": "12-andrey-i-olga-ref2",
+    "order": "12",
+    "names": "Андрей и Ольга"
+  },
+  {
+    "dir": "13 Кирилл и Марина",
+    "slug": "13-kirill-i-marina-ref3",
+    "order": "13",
+    "names": "Кирилл и Марина"
+  },
+  {
+    "dir": "14 Николай и Дарья",
+    "slug": "14-nikolay-i-darya-ref4",
+    "order": "14",
+    "names": "Николай и Дарья"
+  }
+]

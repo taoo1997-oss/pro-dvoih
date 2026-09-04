@@ -174,6 +174,13 @@ def slug_key(slug):
     return "guest_list_" + slug.replace("-", "_")
 
 
+def dir_name(c):
+    """Папка пары на диске: «NN Имена» кириллицей — удобно открывать глазами.
+    URL сайта, foto-ishodniki/ и assets/works/ остаются на slug (латиница),
+    чтобы не ломать ссылки. dir_name используют build_priglashenie.py и pack.js."""
+    return f'{c["order"]} {c["names"]}'
+
+
 def derive(c):
     d = datetime.date.fromisoformat(c["date_iso"])
     dh = f"{d.day} {MONTHS_GEN[d.month - 1]} {d.year}"
@@ -252,7 +259,7 @@ def build_concept(c, tpl_cache, guests_tpl):
     base.update(f)
     base.update(p)
 
-    out_dir = PORTF / slug
+    out_dir = PORTF / dir_name(c)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "index.html").write_text(render(tpl_cache[c["template"]], base), encoding="utf-8")
     (out_dir / "spisok-gostey.html").write_text(render(guests_tpl, base), encoding="utf-8")
@@ -264,7 +271,7 @@ def build_index():
     for c in CONCEPTS:
         p, f, dd = c["palette"], TEMPLATE_FONTS[c["template"]], derive(c)
         cards.append(f"""
-      <a class="card" href="{c['slug']}/index.html" style="--c-ink:{p['C_INK']};--c-bg:{p['C_BG']};--c-accent:{p['C_ACCENT']};--c-text:{p['C_TEXT']};--c-soft:{p['C_TEXT_SOFT']}">
+      <a class="card" href="{urllib.parse.quote(dir_name(c))}/index.html" style="--c-ink:{p['C_INK']};--c-bg:{p['C_BG']};--c-accent:{p['C_ACCENT']};--c-text:{p['C_TEXT']};--c-soft:{p['C_TEXT_SOFT']}">
         <div class="card-sw"><i style="background:{p['C_INK']}"></i><i style="background:{p['C_ACCENT']}"></i><i style="background:{p['C_BG2']}"></i><i style="background:{p['C_BG']}"></i></div>
         <div class="card-body">
           <div class="card-num">{c['order']} · шаблон {c['template']}</div>
@@ -310,9 +317,15 @@ def main():
     print("Сборка портфолио:")
     for c in CONCEPTS:
         t, kb = build_concept(c, tpl_cache, guests_tpl)
-        print(f"  {c['slug']:36s}  [{t}]  index.html {kb:6.0f} KB")
+        print(f"  {dir_name(c):36s}  [{t}]  index.html {kb:6.0f} KB")
     build_index()
     print("  ПОРТФОЛИО/index.html — витрина собрана")
+
+    # dir <-> slug для pack.js/shot.js (у них нет доступа к concepts.py)
+    meta = [{"dir": dir_name(c), "slug": c["slug"], "order": c["order"], "names": c["names"]}
+            for c in CONCEPTS]
+    (PORTF / "_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("  ПОРТФОЛИО/_meta.json — соответствие «папка - slug» для скриптов в ТЕЛЕГА/скрипты")
     print("Готово.")
 
 

@@ -7,8 +7,10 @@
     палитра; отзывы без служебной пометки; на «Как это работает» — платный доп
     «бумажное приглашение».
   • бумажное приглашение A5 — юнит-тесты генератора build_priglashenie.py:
-    собираются все 14, лицо = шапка + тёплые слова, оборот = что/где/когда,
-    без блока «добавить гостей» и без формы, все токены закрыты.
+    папки пар в ПОРТФОЛИО/ — «NN Имена» кириллицей, приглашение лежит в
+    «<пара>/для печати/»; лицо = фото из шапки лендинга + тёплые слова,
+    оборот = что/где/когда, без блока «добавить гостей» и без формы, все
+    токены закрыты.
 
 Запуск:  python тест/test_izmeneniya.py
          python -m unittest discover -s тест -p "test_*.py"
@@ -119,8 +121,10 @@ class PaperInvitationBuild(unittest.TestCase):
         sys.path.insert(0, str(BUILD_DIR))
         run("materialy/build/build_priglashenie.py")
         import build_priglashenie as bp
+        import build
         from concepts import CONCEPTS
         cls.bp = bp
+        cls.dir_name = staticmethod(build.dir_name)
         cls.concepts = CONCEPTS
 
     def test_render_padaet_na_nezakrytom_tokene(self):
@@ -134,21 +138,28 @@ class PaperInvitationBuild(unittest.TestCase):
             self.assertNotIn("{{", out)
 
     def test_sobrany_vse_14(self):
-        made = sorted(p.parent.parent.name for p in PORTF.glob("*/priglashenie/index.html"))
+        made = sorted(p.parent.parent.name for p in PORTF.glob("*/для печати/index.html"))
         self.assertEqual(len(made), len(self.concepts))
+
+    def test_papki_kirillicej_nomer_i_imena(self):
+        for c in self.concepts:
+            self.assertTrue((PORTF / self.dir_name(c)).is_dir(),
+                            f"нет папки «{self.dir_name(c)}» в ПОРТФОЛИО")
 
     def test_licо_shapka_plyus_teplye_slova(self):
         for c in self.concepts:
-            html = (PORTF / c["slug"] / "priglashenie" / "index.html").read_text(encoding="utf-8")
+            html = (PORTF / self.dir_name(c) / "для печати" / "index.html").read_text(encoding="utf-8")
             front = html.split('aria-label="Оборотная сторона"')[0]
             self.assertIn(c["names"], front)
             self.assertIn(c["hero_eyebrow"], front)
             self.assertIn(c["intro_lead"][:40], front, f"нет текста под фото у {c['slug']}")
+            self.assertIn('class="cover-photo"', front, f"нет фото на лицевой у {c['slug']}")
+            self.assertIn("data:image/", front, f"фото не встроено (пустой src) у {c['slug']}")
 
     def test_oborot_chto_gde_kogda(self):
         import datetime
         for c in self.concepts:
-            html = (PORTF / c["slug"] / "priglashenie" / "index.html").read_text(encoding="utf-8")
+            html = (PORTF / self.dir_name(c) / "для печати" / "index.html").read_text(encoding="utf-8")
             back = html.split('aria-label="Оборотная сторона"')[1]
             d = datetime.date.fromisoformat(c["date_iso"])
             self.assertIn("Что, где и когда", back)
@@ -160,7 +171,7 @@ class PaperInvitationBuild(unittest.TestCase):
 
     def test_na_bumage_net_dobavit_gostey_i_formy(self):
         for c in self.concepts:
-            html = (PORTF / c["slug"] / "priglashenie" / "index.html").read_text(encoding="utf-8")
+            html = (PORTF / self.dir_name(c) / "для печати" / "index.html").read_text(encoding="utf-8")
             # вырезаем data:-URI фото (в base64 случайно попадаются любые буквы)
             markup = re.sub(r"data:image/[^\"')]+", "", html).lower()
             self.assertNotIn("добавить гост", markup)
@@ -169,7 +180,7 @@ class PaperInvitationBuild(unittest.TestCase):
 
     def test_ssylka_na_lending_pary(self):
         for c in self.concepts:
-            html = (PORTF / c["slug"] / "priglashenie" / "index.html").read_text(encoding="utf-8")
+            html = (PORTF / self.dir_name(c) / "для печати" / "index.html").read_text(encoding="utf-8")
             self.assertIn(f"pro-dvoih.ru/works/{c['slug']}/", html)
 
 
