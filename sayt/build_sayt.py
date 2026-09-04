@@ -114,6 +114,15 @@ def _fmt_date(iso):
     return f"{int(d)} {MONTHS[int(m) - 1]} {y}"
 
 
+def _swatch_strip(c):
+    """Полоска из 5 цветов дресс-кода пары — карточка читается как референс стиля."""
+    dots = "".join(
+        f'<i style="background:{hx}" title="{_html.escape(str(lb), quote=True)}"></i>'
+        for hx, lb in c.get("dresscode", [])[:5]
+    )
+    return f'<span class="work-palette" aria-hidden="true">{dots}</span>'
+
+
 def _card(c):
     p = c["palette"]
     e = lambda s: _html.escape(str(s), quote=True)
@@ -124,8 +133,9 @@ def _card(c):
         f'<img src="{{{{REL}}}}assets/works/{slug}.jpg" alt="Лендинг: {e(c["names"])}" loading="lazy">'
         f'</span>'
         f'<span class="work-body">'
-        f'<span class="work-names">{e(c["names"])}</span>'
+        f'{_swatch_strip(c)}'
         f'<span class="work-style">{e(c["style_name"])}</span>'
+        f'<span class="work-names">{e(c["names"])}</span>'
         f'<span class="work-meta">{e(_fmt_date(c["date_iso"]))} · {e(c["city_venue"])}</span>'
         f'</span>'
         f'</a>'

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Кирилл и Марина — бумажное приглашение A5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Great+Vibes&family=Golos+Text:wght@400;500&display=swap">
+<style>
+  /* ── A5, двусторонняя печать ────────────────────────────────
+     Страница 1 — лицевая (кто зовёт + тёплые слова).
+     Страница 2 — оборот (что, где и когда).
+     Печать: «Печать» в браузере → размер A5 → двусторонняя, переворот
+     по длинному краю → «Сохранить в PDF». Поля — 0.               */
+  :root{
+    --c-bg:#F7F7F5; --c-bg2:#EAEAE6;
+    --c-ink:#161616; --c-accent:#1A1A1A; --c-accent-deep:#000000;
+    --c-text:#1C1C1C; --c-text-soft:#6B6B6B;
+    --c-on-ink:#F2F2F0; --c-line:rgba(18,18,18,0.16);
+    --serif:'Cormorant Garamond', Georgia, serif;
+    --script:'Great Vibes', 'Cormorant Garamond', cursive;
+    --sans:'Golos Text', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:#e9e5df; }
+  .page{
+    width:148mm; height:210mm; position:relative; overflow:hidden;
+    background:var(--c-bg); color:var(--c-text);
+    font-family:var(--sans); -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .page + .page{ page-break-before:always; }
+  .frame{
+    position:absolute; inset:9mm; border:1px solid var(--c-line);
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding:14mm 12mm;
+  }
+  .frame::after{
+    content:""; position:absolute; inset:2.4mm; border:1px solid var(--c-line);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-size:10pt; letter-spacing:.32em; text-transform:uppercase;
+    color:var(--c-accent-deep); font-weight:500;
+  }
+  .spacer{ flex:1 1 auto; }
+
+  /* ── лицевая ── */
+  .names{
+    font-family:var(--script); font-weight:400; color:var(--c-ink);
+    font-size:52pt; line-height:1.04; margin:6mm 0 4mm;
+  }
+  .rule{ display:flex; align-items:center; gap:5mm; color:var(--c-accent); margin:2mm 0 6mm; }
+  .rule i{ display:block; width:22mm; height:1px; background:currentColor; }
+  .rule b{ font-size:12pt; }
+  .lead{
+    font-family:var(--serif); font-style:italic; font-size:15.5pt; line-height:1.5;
+    color:var(--c-text); max-width:34ch;
+  }
+  .front-date{
+    font-size:11pt; letter-spacing:.28em; color:var(--c-text-soft); font-weight:500;
+  }
+
+  /* ── оборот ── */
+  .back-title{
+    font-family:var(--serif); font-size:22pt; color:var(--c-ink); font-weight:600;
+    margin-bottom:9mm;
+  }
+  .block{ margin-bottom:8mm; }
+  .block .k{
+    font-size:9.5pt; letter-spacing:.28em; text-transform:uppercase;
+    color:var(--c-accent-deep); margin-bottom:2.5mm;
+  }
+  .block .v{ font-family:var(--serif); font-size:16pt; line-height:1.35; color:var(--c-text); }
+  .block .v b{ font-weight:600; color:var(--c-ink); }
+  .block .sub{ font-size:10.5pt; color:var(--c-text-soft); margin-top:1.5mm; line-height:1.45; }
+  .sw{ display:flex; justify-content:center; gap:0; margin:3mm 0 2.5mm; }
+  .sw i{ display:block; width:11mm; height:6mm; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06); }
+  .sw i:first-child{ border-radius:2px 0 0 2px; }
+  .sw i:last-child{ border-radius:0 2px 2px 0; }
+  .footer-line{
+    font-family:var(--serif); font-style:italic; font-size:13.5pt; color:var(--c-text-soft);
+    margin-top:2mm;
+  }
+  .site{
+    font-size:9.5pt; color:var(--c-text-soft); margin-top:5mm; line-height:1.5;
+    hyphens:none; overflow-wrap:anywhere;
+  }
+  .site b{ color:var(--c-accent-deep); font-weight:500; letter-spacing:.03em; }
+
+  @media screen{
+    body{ padding:24px; display:flex; flex-wrap:wrap; gap:24px; justify-content:center; }
+    .page{ box-shadow:0 24px 60px -24px rgba(0,0,0,.35); }
+  }
+  @page{ size:A5; margin:0; }
+</style>
+</head>
+<body>
+
+<section class="page" aria-label="Лицевая сторона">
+  <div class="frame">
+    <p class="eyebrow">Save the date</p>
+    <div class="spacer"></div>
+    <h1 class="names">Кирилл и Марина</h1>
+    <div class="rule"><i></i><b>К · М</b><i></i></div>
+    <p class="lead">8 июня, 15:00, крыша над городом. Мы женимся — и зовём вас.</p>
+    <div class="spacer"></div>
+    <p class="front-date">08 · 06 · 2027</p>
+  </div>
+</section>
+
+<section class="page" aria-label="Оборотная сторона">
+  <div class="frame">
+    <p class="eyebrow">Кирилл и Марина</p>
+    <div class="spacer"></div>
+    <h2 class="back-title">Что, где и когда</h2>
+
+    <div class="block">
+      <div class="k">Когда</div>
+      <div class="v"><b>8 июня 2027</b><br>вторник, начало в 15:00</div>
+      <div class="sub">Сбор гостей в 14:30</div>
+    </div>
+
+    <div class="block">
+      <div class="k">Где</div>
+      <div class="v"><b>Площадка «Верх»</b></div>
+      <div class="sub">Москва, Нижняя Сыромятническая ул., 10, стр. 9, 7 этаж</div>
+    </div>
+
+    <div class="block">
+      <div class="k">Дресс-код</div>
+      <div class="sw"><i style="background:#FFFFFF" title="белый"></i><i style="background:#C9C9C9" title="светло-серый"></i><i style="background:#6E6E6E" title="серый"></i><i style="background:#2B2B2B" title="графит"></i><i style="background:#111111" title="чёрный"></i></div>
+      <div class="sub">Монохром с одним акцентом: белый, серый, графит, чёрный. Один яркий предмет допустим. Чистые силуэты, минимум украшений.</div>
+    </div>
+
+    <div class="spacer"></div>
+    <p class="footer-line">Кирилл и Марина · 08.06.2027</p>
+    <p class="site">Программа дня, карта и подтверждение участия — на сайте:<br><b>pro-dvoih.ru/works/13-kirill-i-marina-ref3/</b></p>
+  </div>
+</section>
+
+</body>
+</html>
