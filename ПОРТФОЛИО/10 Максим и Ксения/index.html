@@ -321,10 +321,11 @@
     try{
       var extras=Array.from(document.querySelectorAll('.extra-guest-input')).map(function(i){return i.value.trim();}).filter(Boolean);
       var noteEl=document.getElementById('guestNote'); var note=noteEl?noteEl.value.trim():'';
-      var list=[];
-      try{ var r=await window.storage.get('guest_list_10_maksim_i_kseniya_rustik', true); if(r&&r.value) list=JSON.parse(r.value); }catch(x){ list=[]; }
-      list.push({ name:name, guests:extras, note:note, ts:Date.now() });
-      await window.storage.set('guest_list_10_maksim_i_kseniya_rustik', JSON.stringify(list), true);
+      var resp=await fetch('https://rsvp-backend.taoo1997.workers.dev/rsvp',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ wedding:'10-maksim-i-kseniya-rustik', name:name, guests:extras, note:note })
+      });
+      if(!resp.ok) throw new Error('rsvp '+resp.status);
       document.getElementById('rsvpForm').style.display='none';
       var t=document.getElementById('rsvpThanks');
       t.textContent='Спасибо! Будем очень рады видеть вас 28 августа.';

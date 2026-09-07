@@ -41,10 +41,12 @@
 `{{IMG_HERO}}` `{{IMG_G1}}` `{{IMG_G2}}` `{{IMG_G3}}` — `data:`-URI.
 `{{GCAP1}}` `{{GCAP2}}` `{{GCAP3}}` — подписи/alt к фото галереи.
 
-### Дата, скрипт, хранилище
+### Дата, скрипт, RSVP-бэкенд
 `{{CAL_YEAR}}` `{{CAL_MONTH_INDEX}}` (0–11) `{{CAL_DAY}}` — мини-календарь ·
-`{{EVENT_DATE_ISO}}` — обратный отсчёт · `{{STORAGE_KEY}}` — ключ `window.storage`,
-уникальный для работы (тот же читает `guests.template.html`) ·
+`{{EVENT_DATE_ISO}}` — обратный отсчёт ·
+`{{RSVP_API}}` — URL воркера `rsvp-backend/` (константа в build.py) ·
+`{{WEDDING_ID}}` — slug пары, ключ свадьбы в базе RSVP (тот же читает
+`guests.template.html`) ·
 `{{SCRIPT}}` — общий JS (календарь, отсчёт, появление секций, RSVP), встраивает
 build.py из константы `SHARED_SCRIPT`.
 

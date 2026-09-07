@@ -20,6 +20,11 @@ TPL_DIR = ROOT / "shablon"
 IMG_DIR = ROOT / "materialy" / "foto-ishodniki"
 PORTF = ROOT / "ПОРТФОЛИО"
 
+# Бэкенд для ответов гостей (RSVP). Форма и spisok-gostey.html ходят сюда
+# через fetch. Значение — URL воркера из rsvp-backend/ после `npm run deploy`.
+# Без завершающего слэша.
+RSVP_API = "https://rsvp-backend.taoo1997.workers.dev"
+
 MONTHS_GEN = ["января", "февраля", "марта", "апреля", "мая", "июня",
               "июля", "августа", "сентября", "октября", "ноября", "декабря"]
 WD = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
@@ -150,10 +155,11 @@ SHARED_SCRIPT = r"""<script>
     try{
       var extras=Array.from(document.querySelectorAll('.extra-guest-input')).map(function(i){return i.value.trim();}).filter(Boolean);
       var noteEl=document.getElementById('guestNote'); var note=noteEl?noteEl.value.trim():'';
-      var list=[];
-      try{ var r=await window.storage.get('{{STORAGE_KEY}}', true); if(r&&r.value) list=JSON.parse(r.value); }catch(x){ list=[]; }
-      list.push({ name:name, guests:extras, note:note, ts:Date.now() });
-      await window.storage.set('{{STORAGE_KEY}}', JSON.stringify(list), true);
+      var resp=await fetch('{{RSVP_API}}/rsvp',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ wedding:'{{WEDDING_ID}}', name:name, guests:extras, note:note })
+      });
+      if(!resp.ok) throw new Error('rsvp '+resp.status);
       document.getElementById('rsvpForm').style.display='none';
       var t=document.getElementById('rsvpThanks');
       t.textContent='Спасибо! Будем очень рады видеть вас {{DATE_SHORT}}.';
@@ -168,10 +174,6 @@ SHARED_SCRIPT = r"""<script>
 
 def e(s):
     return html.escape(str(s), quote=False)
-
-
-def slug_key(slug):
-    return "guest_list_" + slug.replace("-", "_")
 
 
 def dir_name(c):
@@ -252,7 +254,8 @@ def build_concept(c, tpl_cache, guests_tpl):
         "FAQ_ITEMS": faq_html(c["faq"]),
         "RSVP_LEAD": e(c["rsvp_lead"]), "RSVP_EXTRA_LABEL": e(c["rsvp_extra_label"]),
         "RSVP_NOTE": e(c["rsvp_note"]), "FOOTER_LINE": e(c["footer_line"]),
-        "VENUE_SHORT": e(c["venue_short"]), "STORAGE_KEY": slug_key(slug),
+        "VENUE_SHORT": e(c["venue_short"]),
+        "RSVP_API": RSVP_API, "WEDDING_ID": slug,
         "TIME": e(c["time"]),
     }
     base.update(dd)

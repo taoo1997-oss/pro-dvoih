@@ -72,8 +72,9 @@
   async function renderGuestList(){
     var container = document.getElementById('guestListContainer');
     try{
-      var res = await window.storage.get('guest_list_10_maksim_i_kseniya_rustik', true);
-      var list = (res && res.value) ? JSON.parse(res.value) : [];
+      var res = await fetch('https://rsvp-backend.taoo1997.workers.dev/rsvp?wedding=10-maksim-i-kseniya-rustik');
+      var data = res.ok ? await res.json() : {};
+      var list = data.list || [];
       if(!list.length){
         container.innerHTML = '<p class="empty">Пока никто не ответил.</p>';
         document.getElementById('sPeople').textContent = '0';

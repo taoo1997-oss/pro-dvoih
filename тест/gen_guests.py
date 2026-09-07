@@ -2,7 +2,7 @@
 """
 Генерит 100 заявок RSVP в формате лендинга ({name, guests[], note, ts}) и
 собирает статичный список-гостей-100.html — тот же шаблон guests.template.html,
-но с вшитыми данными, открывается файлом без window.storage.
+но с вшитыми данными, открывается файлом без обращения к rsvp-backend.
 
 Запуск:  python тест/gen_guests.py
 """
@@ -13,7 +13,6 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SLUG = "test-egor-i-valeriya-shalfej"
-STORAGE_KEY = "guest_list_test_egor_i_valeriya_shalfej"
 LP_DIR = HERE / "output" / SLUG
 
 random.seed(21082027)
@@ -93,25 +92,39 @@ pal = {
     "FONT_TEXT": "'Manrope', system-ui, sans-serif",
     "FONT_NAME": "'Great Vibes', 'Segoe Script', cursive",
     "NAMES": "Егор и Валерия", "DATE_HUMAN": "21 августа 2027",
-    "VENUE_SHORT": "клуб «Сосновка»", "STORAGE_KEY": STORAGE_KEY,
+    "VENUE_SHORT": "клуб «Сосновка»", "RSVP_API": "", "WEDDING_ID": SLUG,
 }
+
+# подменяем источник данных renderGuestList: вместо fetch к rsvp-backend —
+# вшитый массив (делаем до подстановки токенов, по сырым строкам шаблона)
+inject = "var data = {list: " + json.dumps(entries, ensure_ascii=False) + "};"
+tpl = tpl.replace(
+    "var res = await fetch('{{RSVP_API}}/rsvp?wedding={{WEDDING_ID}}');\n"
+    "      var data = res.ok ? await res.json() : {};",
+    inject,
+)
+
 for k, v in pal.items():
     tpl = tpl.replace("{{" + k + "}}", v)
 
-# подменяем renderGuestList: вместо window.storage — вшитый массив
-inject = ("var res = {value: JSON.stringify(" + json.dumps(entries, ensure_ascii=False) + ")};")
-tpl = tpl.replace("var res = await window.storage.get('" + STORAGE_KEY + "', true);", inject)
 (HERE / "список-гостей-100.html").write_text(tpl, encoding="utf-8")
 
 print(f"заявок: {len(entries)}   человек придёт: {people}")
 print(f"  гости-100.json")
 print(f"  список-гостей-100.html  (открывается файлом, {len(tpl)//1024} KB)")
 
-# как залить в опубликованный артефакт — через консоль браузера
+# как залить эти 100 заявок в rsvp-backend — сниппет для консоли браузера
+# (F12 → Console на любой странице; поправить RSVP_API на свой URL воркера)
 snippet = (
-    "// вставить в консоль на опубликованном лендинге (F12 → Console):\n"
-    "await window.storage.set('" + STORAGE_KEY + "',\n"
-    "  JSON.stringify(" + json.dumps(entries, ensure_ascii=False) + "), true);\n"
+    "const RSVP_API = 'https://rsvp-backend.CHANGE-ME.workers.dev';\n"
+    "const WEDDING = '" + SLUG + "';\n"
+    "const rows = " + json.dumps(entries, ensure_ascii=False) + ";\n"
+    "for (const r of rows) {\n"
+    "  await fetch(RSVP_API + '/rsvp', { method:'POST',\n"
+    "    headers:{'Content-Type':'application/json'},\n"
+    "    body: JSON.stringify({ wedding: WEDDING, name: r.name, guests: r.guests, note: r.note }) });\n"
+    "}\n"
+    "console.log('залито:', rows.length);\n"
 )
-(HERE / "залить-100-в-артефакт.js.txt").write_text(snippet, encoding="utf-8")
-print(f"  залить-100-в-артефакт.js.txt  (консольный сниппет)")
+(HERE / "залить-100-в-rsvp-backend.js.txt").write_text(snippet, encoding="utf-8")
+print(f"  залить-100-в-rsvp-backend.js.txt  (консольный сниппет)")

@@ -1,0 +1,8 @@
+name = "rsvp-backend"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wedding-rsvp"
+database_id = "0330f3dc-6a9a-4e22-9fbf-6a78af3b78c2"
