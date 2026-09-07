@@ -241,6 +241,10 @@ def main():
             dst = DIST / "works" / c["slug"]
             dst.mkdir(parents=True, exist_ok=True)
             shutil.copy(lp, dst / "index.html")
+            # страница ответов гостей для пары — тот же RSVP-бэкенд, что и форма
+            gl = lp.parent / "spisok-gostey.html"
+            if gl.exists():
+                shutil.copy(gl, dst / "spisok-gostey.html")
             n_works += 1
 
     print(f"  работ в сетке: {len(concepts)} · лендингов в dist/works/: {n_works}")
