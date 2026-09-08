@@ -25,31 +25,36 @@
       document.documentElement.classList.add('anim');
     }
   } catch (e) {}
-  /* запуск как установленное приложение — показываем заставку со знаком */
+  /* Запуск как установленное приложение — заставка со знаком.
+     .nosplash ставим, если заставку уже показывали в этой сессии
+     (переходы между страницами) ИЛИ секунды назад (Chrome при холодном
+     старте WebAPK перезагружает документ — иначе знак рисуется дважды). */
   try {
     if (matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
-      document.documentElement.classList.add('pwa');
+      var d = document.documentElement;
+      d.classList.add('pwa');
+      var recent = Date.now() - (+localStorage.getItem('pdSplashAt') || 0) < 10000;
+      if (sessionStorage.getItem('pdSplash') === '1' || recent) d.classList.add('nosplash');
     }
   } catch (e) {}
 </script>
 <style>
-  /* Заставка: видна только в установленном приложении (html.pwa), пока
-     страница готовится. Знак «Про двоих» прорисовывается штрихом, держится
-     ~1.2 c и плавно растворяется — продолжение системного splash, поэтому
-     фон тот же, что background_color в манифесте. */
+  /* Заставка: видна только при первом запуске установленного приложения
+     (html.pwa без .nosplash). Знак «Про двоих» прорисовывается штрихом,
+     держится ~1.5 c и плавно растворяется — продолжение системного splash,
+     поэтому фон тот же, что background_color в манифесте, и знак не
+     «въезжает», а просто оживает на том же месте. */
   .splash { position:fixed; inset:0; z-index:9999; display:none;
     align-items:center; justify-content:center; }
-  html.pwa .splash { display:flex; }
+  html.pwa:not(.nosplash) .splash { display:flex; }
   .splash-bg { position:absolute; inset:0; background:#F5EDE5;
     transition:opacity .6s ease; }
   .splash-logo { position:relative; z-index:1; display:flex; flex-direction:column;
-    align-items:center; gap:22px; animation:splashIn .6s ease both; }
+    align-items:center; gap:22px; }
   .splash-mark { width:112px; height:112px; display:block; transform-origin:center; }
   .splash-mark circle { fill:none; stroke-linecap:round; }
   .splash-name { font-family:'Cormorant Garamond', Georgia, serif; font-weight:600;
     font-size:1.05rem; letter-spacing:.24em; text-transform:uppercase; color:#241F1B; }
-  @keyframes splashIn { from { opacity:0; transform:translateY(10px) scale(.96); }
-    to { opacity:1; transform:none; } }
   .splash.hide { pointer-events:none; }
   .splash.hide .splash-bg { opacity:0; }
   .splash.hide .splash-logo { opacity:0; transform:scale(1.04);
@@ -61,7 +66,6 @@
     .splash-mark .d-rose { animation-delay:.2s; }
   }
   @keyframes splashDraw { to { stroke-dashoffset:0; } }
-  @media (prefers-reduced-motion: reduce) { .splash-logo { animation:none; } }
 </style>
 </head>
 <body>
@@ -218,24 +222,27 @@
 </script>
 
 <script>
-  /* Убираем заставку приложения: держим ~1.5 c (знак успевает прорисоваться
-     и секунду постоять), затем плавно растворяем за ~0.6 c. Вне режима
-     приложения элемент сразу удаляется — обычный посетитель его не видит. */
+  /* Заставка приложения: держим ~1.5 c (знак успевает прорисоваться и
+     постоять), затем плавно растворяем за ~0.6 c. Показываем один раз за
+     сессию — метки не дают ей повториться ни при перезагрузке документа на
+     старте WebAPK, ни при переходах между страницами внутри приложения.
+     Вне режима приложения (или уже показанной заставки) узел сразу удаляем. */
   (function () {
     var sp = document.getElementById('splash');
     if (!sp) return;
-    if (!document.documentElement.classList.contains('pwa')) {
+    var d = document.documentElement;
+    if (!d.classList.contains('pwa') || d.classList.contains('nosplash')) {
       if (sp.parentNode) sp.parentNode.removeChild(sp);
       return;
     }
-    var HOLD_MS = 1500;
-    function hide() {
-      var logo = sp.querySelector('.splash-logo');
-      if (logo) logo.style.animation = 'none';   // отдаём transform CSS-классу .hide
-      requestAnimationFrame(function () { sp.classList.add('hide'); });
+    try {
+      sessionStorage.setItem('pdSplash', '1');
+      localStorage.setItem('pdSplashAt', String(Date.now()));
+    } catch (e) {}
+    setTimeout(function () {
+      sp.classList.add('hide');
       setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 700);
-    }
-    setTimeout(hide, HOLD_MS);
+    }, 1500);
   })();
 </script>
 
