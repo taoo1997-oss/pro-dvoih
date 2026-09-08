@@ -25,9 +25,58 @@
       document.documentElement.classList.add('anim');
     }
   } catch (e) {}
+  /* запуск как установленное приложение — показываем заставку со знаком */
+  try {
+    if (matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
+      document.documentElement.classList.add('pwa');
+    }
+  } catch (e) {}
 </script>
+<style>
+  /* Заставка: видна только в установленном приложении (html.pwa), пока
+     страница готовится. Знак «Про двоих» прорисовывается штрихом, держится
+     ~1.2 c и плавно растворяется — продолжение системного splash, поэтому
+     фон тот же, что background_color в манифесте. */
+  .splash { position:fixed; inset:0; z-index:9999; display:none;
+    align-items:center; justify-content:center; }
+  html.pwa .splash { display:flex; }
+  .splash-bg { position:absolute; inset:0; background:#F5EDE5;
+    transition:opacity .6s ease; }
+  .splash-logo { position:relative; z-index:1; display:flex; flex-direction:column;
+    align-items:center; gap:22px; animation:splashIn .6s ease both; }
+  .splash-mark { width:112px; height:112px; display:block; transform-origin:center; }
+  .splash-mark circle { fill:none; stroke-linecap:round; }
+  .splash-name { font-family:'Cormorant Garamond', Georgia, serif; font-weight:600;
+    font-size:1.05rem; letter-spacing:.24em; text-transform:uppercase; color:#241F1B; }
+  @keyframes splashIn { from { opacity:0; transform:translateY(10px) scale(.96); }
+    to { opacity:1; transform:none; } }
+  .splash.hide { pointer-events:none; }
+  .splash.hide .splash-bg { opacity:0; }
+  .splash.hide .splash-logo { opacity:0; transform:scale(1.04);
+    transition:opacity .55s ease, transform .55s ease; }
+  /* Штриховая прорисовка знака — только если движение не отключено. */
+  @media (prefers-reduced-motion: no-preference) {
+    .splash-mark circle { stroke-dasharray:1; stroke-dashoffset:1;
+      animation:splashDraw 1s ease .05s forwards; }
+    .splash-mark .d-rose { animation-delay:.2s; }
+  }
+  @keyframes splashDraw { to { stroke-dashoffset:0; } }
+  @media (prefers-reduced-motion: reduce) { .splash-logo { animation:none; } }
+</style>
 </head>
 <body>
+
+<div class="splash" id="splash">
+  <div class="splash-bg"></div>
+  <div class="splash-logo">
+    <svg class="splash-mark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><mask id="splashWeave"><rect width="100" height="100" fill="#fff"/><circle cx="42" cy="32" r="7" fill="#000"/></mask></defs>
+      <circle class="d-ink" cx="57" cy="52" r="26" pathLength="1" stroke="#241F1B" stroke-width="6"/>
+      <circle class="d-rose" cx="42" cy="52" r="21" pathLength="1" stroke="#BE857C" stroke-width="6" mask="url(#splashWeave)"/>
+    </svg>
+    <div class="splash-name">Про двоих</div>
+  </div>
+</div>
 
 <header class="site-head">
   <a class="site-logo" href="{{REL}}" aria-label="Про двоих — на главную">
@@ -165,6 +214,28 @@
     setTimeout(function () {
       Array.prototype.forEach.call(els, function (el) { el.classList.add('in'); });
     }, 3500);
+  })();
+</script>
+
+<script>
+  /* Убираем заставку приложения: держим ~1.5 c (знак успевает прорисоваться
+     и секунду постоять), затем плавно растворяем за ~0.6 c. Вне режима
+     приложения элемент сразу удаляется — обычный посетитель его не видит. */
+  (function () {
+    var sp = document.getElementById('splash');
+    if (!sp) return;
+    if (!document.documentElement.classList.contains('pwa')) {
+      if (sp.parentNode) sp.parentNode.removeChild(sp);
+      return;
+    }
+    var HOLD_MS = 1500;
+    function hide() {
+      var logo = sp.querySelector('.splash-logo');
+      if (logo) logo.style.animation = 'none';   // отдаём transform CSS-классу .hide
+      requestAnimationFrame(function () { sp.classList.add('hide'); });
+      setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 700);
+    }
+    setTimeout(hide, HOLD_MS);
   })();
 </script>
 
