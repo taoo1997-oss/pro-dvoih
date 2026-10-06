@@ -27,8 +27,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Pillow нужен build_sayt.py: режет превью работ и обложку под srcset
       - name: Собрать сайт
-        run: python САЙТ/build_sayt.py
+        run: |
+          pip install pillow
+          python САЙТ/build_sayt.py
 
       - uses: actions/configure-pages@v5
 

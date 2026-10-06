@@ -33,6 +33,9 @@
   --maxw:1120px;
   --measure:58ch;
   --pad:clamp(20px, 5vw, 52px);
+
+  /* движение: одна кривая с уверенным торможением на весь сайт */
+  --ease-out:cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 *{ box-sizing:border-box; }
@@ -40,7 +43,26 @@ html{ -webkit-text-size-adjust:100%; }
 body{
   margin:0; background:var(--ground); color:var(--ink);
   font-family:var(--sans); font-size:18px; line-height:1.7;
-  -webkit-font-smoothing:antialiased;
+  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+  /* подвал всегда внизу, даже на короткой странице */
+  min-height:100vh; min-height:100dvh; display:flex; flex-direction:column;
+}
+main{ flex:1 0 auto; }
+::selection{ background:var(--rose); color:#fff; }
+
+.skip{ position:absolute; left:12px; top:-60px; z-index:200; padding:10px 16px;
+  background:var(--ink); color:#fff; text-decoration:none; font-size:15px; }
+.skip:focus{ top:12px; }
+
+/* переход между страницами: шапка стоит на месте, меняется только содержимое */
+@view-transition{ navigation:auto; }
+.site-head{ view-transition-name:site-head; }
+::view-transition-old(root){ animation:vtOut .16s var(--ease-out) both; }
+::view-transition-new(root){ animation:vtIn .28s var(--ease-out) both; }
+@keyframes vtOut{ to{ opacity:0; } }
+@keyframes vtIn{ from{ opacity:0; } }
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-old(root), ::view-transition-new(root){ animation:none; }
 }
 img{ max-width:100%; height:auto; display:block; }
 
@@ -51,7 +73,7 @@ h3{ font-size:clamp(20px, 2.4vw, 24px); }
 p{ margin:0; }
 
 a{ color:var(--rose-deep); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
-a:hover{ color:var(--ink); }
+@media (hover:hover) and (pointer:fine){ a:hover{ color:var(--ink); } }
 :focus-visible{ outline:2px solid var(--rose-deep); outline-offset:3px; border-radius:2px; }
 
 .wrap{ max-width:var(--maxw); margin:0 auto; padding-inline:var(--pad); }
@@ -68,13 +90,17 @@ a:hover{ color:var(--ink); }
 .btn, .btn-ghost{
   display:inline-block; font-family:var(--sans); font-weight:600; font-size:13.5px;
   letter-spacing:0.14em; text-transform:uppercase; text-decoration:none;
-  padding:16px 34px; border:1px solid var(--line-ink); cursor:pointer;
-  transition:background .18s ease, color .18s ease, border-color .18s ease;
+  padding:16px 34px; border:1px solid var(--line-ink); cursor:pointer; text-align:center;
+  transition:background-color .18s ease, color .18s ease, border-color .18s ease, transform .14s var(--ease-out);
 }
 .btn{ background:var(--ink); color:var(--surface); }
-.btn:hover{ background:var(--rose-deep); border-color:var(--rose-deep); color:#fff; }
 .btn-ghost{ background:transparent; color:var(--ink); }
-.btn-ghost:hover{ background:var(--ink); color:var(--surface); }
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{ background:var(--rose-deep); border-color:var(--rose-deep); color:#fff; }
+  .btn-ghost:hover{ background:var(--ink); color:var(--surface); }
+}
+/* нажатие слышно сразу, и на телефоне тоже */
+.btn:active, .btn-ghost:active, .site-cta:active{ transform:scale(0.98); }
 
 /* ---------- шапка ---------- */
 .site-head{
@@ -84,38 +110,45 @@ a:hover{ color:var(--ink); }
 }
 .site-logo{ flex:0 0 auto; line-height:0; color:var(--ink); }
 .site-logo .logo-mark{ height:58px; width:auto; display:block; }
-.site-logo:hover{ color:var(--rose-deep); }
+@media (hover:hover) and (pointer:fine){ .site-logo:hover{ color:var(--rose-deep); } }
 
 .site-nav{ flex:1 1 auto; display:flex; flex-wrap:wrap; gap:30px; justify-content:center; }
 .site-nav a{
-  font-size:13.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
-  color:var(--ink); text-decoration:none; padding-bottom:4px;
+  position:relative; font-size:13.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--ink); text-decoration:none; padding:12px 0; transition:color .18s ease;
 }
-.site-nav a:hover{ color:var(--rose-deep); }
-.site-nav a.is-current{ border-bottom:1px solid var(--rose); }
+/* линия под пунктом: у текущего всегда, у остальных вырастает при наведении */
+.site-nav a::after{ content:""; position:absolute; left:0; right:0; bottom:6px; height:1px;
+  background:var(--rose); transform:scaleX(0); transition:transform .25s var(--ease-out); }
+.site-nav a.is-current::after{ transform:scaleX(1); }
+@media (hover:hover) and (pointer:fine){
+  .site-nav a:hover{ color:var(--rose-deep); }
+  .site-nav a:hover::after{ transform:scaleX(1); }
+}
 
 .site-cta{
   flex:0 0 auto; font-size:13px; font-weight:600; letter-spacing:0.12em;
   text-transform:uppercase; text-decoration:none; color:var(--ink);
   border:1px solid var(--line-ink); padding:13px 24px;
-  transition:background .18s ease, color .18s ease;
+  transition:background-color .18s ease, color .18s ease, transform .14s var(--ease-out);
 }
-.site-cta:hover{ background:var(--ink); color:var(--surface); }
+@media (hover:hover) and (pointer:fine){ .site-cta:hover{ background:var(--ink); color:var(--surface); } }
 
 @media (max-width:880px){
-  .site-head{ flex-wrap:wrap; gap:16px; }
-  .site-logo .logo-mark{ height:50px; }
-  .site-nav{ order:3; width:100%; justify-content:flex-start; gap:22px; }
-  .site-cta{ margin-left:auto; }
+  .site-head{ flex-wrap:wrap; gap:4px 16px; padding-block:16px 4px; }
+  .site-logo .logo-mark{ height:44px; }
+  .site-nav{ order:3; width:100%; justify-content:flex-start; gap:24px; }
+  .site-cta{ margin-left:auto; padding:11px 16px; font-size:12px; letter-spacing:0.1em; }
 }
 
 /* ---------- герой: большое фото, снизу мягкий уход в белый блок ---------- */
 .hero{ position:relative; }
 .hero-photo{
-  position:relative;
+  position:relative; overflow:hidden;
   height:min(88vh, 880px);
-  background:#E7D6CC url("assets/hero-pyotr-anna.jpg") center 42% / cover no-repeat;
+  background:#E7D6CC;
 }
+.hero-photo img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 42%; }
 .hero-photo::after{                 /* нижняя треть фото плавно растворяется в белом */
   content:""; position:absolute; left:0; right:0; bottom:-1px;
   height:40%;
@@ -129,7 +162,7 @@ a:hover{ color:var(--ink); }
   pointer-events:none;
 }
 .hero-panel{ position:relative; background:var(--surface); }
-.hero-copy{ max-width:760px; padding-block:clamp(8px, 2vw, 24px) clamp(48px, 8vw, 92px); }
+.hero-copy{ max-width:760px; padding-block:clamp(8px, 2vw, 24px) clamp(56px, 8vw, 96px); }
 .hero h1{ color:var(--ink); }
 .hero-lede{
   font-size:clamp(17.5px, 2vw, 20.5px); color:var(--ink);
@@ -141,10 +174,12 @@ a:hover{ color:var(--ink); }
   padding-top:18px; border-top:1px solid var(--line);
   display:inline-block; margin:0 0 30px;
 }
-.hero-actions{ display:flex; flex-wrap:wrap; gap:14px; }
+.hero-actions{ display:flex; flex-wrap:wrap; gap:12px; }
 
 @media (max-width:640px){
   .hero-photo{ height:min(72vh, 580px); }
+  /* две кнопки одной ширины, а не лесенкой */
+  .hero-actions > a{ flex:1 1 100%; }
 }
 
 /* ---------- вводный абзац секции ---------- */
@@ -154,10 +189,10 @@ a:hover{ color:var(--ink); }
 }
 
 /* ---------- сетка работ ---------- */
-.works-grid{
-  display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
-  gap:24px;
-}
+.works-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
+@media (max-width:1000px){ .works-grid{ grid-template-columns:repeat(2, 1fr); gap:18px; }
+  .works-grid .work--cta{ grid-column:1 / -1; } }
+@media (max-width:600px){ .works-grid{ grid-template-columns:1fr; } }
 .works-grid--preview{ grid-template-columns:repeat(4, 1fr); gap:20px; margin-bottom:32px; }
 @media (max-width:940px){ .works-grid--preview{ grid-template-columns:repeat(2, 1fr); } }
 @media (max-width:520px){ .works-grid--preview{ grid-template-columns:1fr; } }
@@ -166,16 +201,16 @@ a:hover{ color:var(--ink); }
   display:flex; flex-direction:column;
   background:var(--surface); border:1px solid var(--line);
   text-decoration:none; color:var(--ink);
-  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-}
-.work:hover{
-  transform:translateY(-3px);
-  box-shadow:0 18px 44px -18px rgba(36,31,27,0.24);
-  border-color:#D6C9BB;
+  transition:transform .3s var(--ease-out), box-shadow .3s var(--ease-out), border-color .2s ease;
 }
 .work-shot{ display:block; aspect-ratio:4/5; overflow:hidden; background:var(--surface-2); }
-.work-shot img{ width:100%; height:100%; object-fit:cover; object-position:center 28%; display:block; }
-.work:hover .work-shot img{ }
+.work-shot img{ width:100%; height:100%; object-fit:cover; object-position:center 28%; display:block;
+  transition:transform .6s var(--ease-out); }
+@media (hover:hover) and (pointer:fine){
+  .work:hover{ transform:translateY(-3px); box-shadow:0 18px 44px -18px rgba(36,31,27,0.24); border-color:#D6C9BB; }
+  .work:hover .work-shot img{ transform:scale(1.03); }
+}
+.work:active{ transform:scale(0.985); transition-duration:.12s; }
 .work-body{ padding:16px 20px 20px; display:flex; flex-direction:column; gap:7px; }
 .work-palette{ display:flex; gap:0; margin-bottom:3px; }
 .work-palette i{
@@ -188,20 +223,48 @@ a:hover{ color:var(--ink); }
   font-family:var(--serif); font-weight:600; font-size:21px; line-height:1.15;
   color:var(--ink);
 }
-.work-names{ font-size:13px; font-weight:600; color:var(--w-accent, var(--rose-deep)); }
-.work-meta{ font-size:12.5px; color:var(--ink-soft); }
+.work-sub{ font-size:14px; line-height:1.4; color:var(--ink-soft); margin-top:-3px; }
+/* акцент пары подмешан к графиту: светлые акценты (охра, лаванда) на белом читаются */
+.work-names{ font-size:13px; font-weight:600; color:var(--rose-deep);
+  color:color-mix(in srgb, var(--w-accent, var(--rose-deep)) 55%, var(--ink)); }
+.work-meta{ font-size:13px; line-height:1.45; color:var(--ink-soft); }
 
-/* ---------- список допов ---------- */
-.addons{ list-style:none; margin:20px 0 0; padding:0; display:flex; flex-direction:column; gap:14px; }
-.addons li{
-  padding-left:20px; position:relative; max-width:62ch;
-  font-size:15px; line-height:1.55; color:var(--ink-soft);
+/* плитка-заявка в конце сетки */
+.work--cta{ background:var(--ink); border-color:var(--ink); color:var(--surface); min-height:260px; }
+.work-cta-body{ flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:12px;
+  padding:clamp(24px, 3vw, 32px); }
+.work-cta-title{ font-family:var(--serif); font-weight:600; font-size:clamp(28px, 3vw, 34px); line-height:1.1; }
+.work-cta-meta{ font-size:14px; letter-spacing:0.06em; color:#CDBFB3; }
+.work-cta-btn{ align-self:flex-start; margin-top:10px; padding:14px 26px; border:1px solid var(--surface);
+  font-size:13px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+  transition:background-color .18s ease, color .18s ease; }
+@media (hover:hover) and (pointer:fine){
+  .work--cta:hover .work-cta-btn{ background:var(--surface); color:var(--ink); }
 }
-.addons li::before{
-  content:""; position:absolute; left:0; top:10px;
-  width:7px; height:7px; border-radius:50%; background:var(--rose);
-}
-.addons b{ color:var(--ink); font-weight:600; }
+
+/* ---------- как это работает: шаги, цена, допы ---------- */
+.section h2:not(:first-child){ margin-top:clamp(64px, 9vw, 104px); }
+.steps{ list-style:none; counter-reset:step; margin:clamp(36px, 5vw, 56px) 0 0; padding:0;
+  display:grid; gap:clamp(28px, 4vw, 40px); max-width:720px; }
+.steps li{ counter-increment:step; display:grid; grid-template-columns:48px 1fr; column-gap:12px; }
+.steps li::before{ content:counter(step); grid-row:span 2; font-family:var(--serif); font-weight:600;
+  font-size:40px; line-height:1; color:var(--rose); font-variant-numeric:lining-nums; }
+.steps h3{ margin-bottom:8px; }
+.steps p{ color:var(--ink-soft); font-size:17px; max-width:var(--measure); }
+
+.price{ margin-top:clamp(48px, 7vw, 72px); padding:clamp(28px, 4vw, 40px); max-width:720px;
+  background:var(--surface); border:1px solid var(--line); }
+.price-num{ font-family:var(--serif); font-weight:600; font-size:clamp(44px, 6vw, 60px); line-height:1;
+  font-variant-numeric:lining-nums; }
+.price-what{ margin:14px 0 26px; color:var(--ink-soft); font-size:17px; max-width:var(--measure); }
+
+.addons{ list-style:none; margin:24px 0 0; padding:0; max-width:720px; border-top:1px solid var(--line); }
+.addons li{ display:grid; grid-template-columns:1fr auto; column-gap:24px; row-gap:6px;
+  padding:18px 0; border-bottom:1px solid var(--line); }
+.addon-name{ font-weight:600; font-size:17px; line-height:1.4; color:var(--ink); }
+.addon-price{ font-family:var(--serif); font-weight:600; font-size:21px; line-height:1.2; white-space:nowrap;
+  color:var(--rose-deep); font-variant-numeric:lining-nums; text-align:right; }
+.addon-note{ grid-column:1 / -1; font-size:15px; line-height:1.55; color:var(--ink-soft); max-width:62ch; }
 
 .works-all{
   display:inline-block; margin-top:8px;
@@ -210,7 +273,7 @@ a:hover{ color:var(--ink); }
   color:var(--ink); text-decoration:none;
   border-bottom:1px solid var(--rose); padding-bottom:3px;
 }
-.works-all:hover{ color:var(--rose-deep); border-color:var(--rose-deep); }
+@media (hover:hover) and (pointer:fine){ .works-all:hover{ color:var(--rose-deep); border-color:var(--rose-deep); } }
 
 /* ---------- временная пометка на неготовых страницах ---------- */
 .soon{
@@ -227,7 +290,7 @@ a:hover{ color:var(--ink); }
 .foot-inner{ display:flex; flex-wrap:wrap; gap:20px 48px; align-items:center; justify-content:space-between; }
 
 .foot-brand{ display:flex; align-items:center; flex-wrap:wrap; gap:6px 12px; text-decoration:none; color:var(--ink); }
-.foot-brand:hover{ color:var(--rose-deep); }
+@media (hover:hover) and (pointer:fine){ .foot-brand:hover{ color:var(--rose-deep); } }
 .foot-rings{ line-height:0; flex:0 0 auto; }
 .foot-rings svg{ height:24px; width:auto; display:block; }
 .foot-name{ font-family:var(--serif); font-weight:600; font-size:24px; letter-spacing:0.11em; line-height:1; }
@@ -240,10 +303,10 @@ a:hover{ color:var(--ink); }
 .foot-contact .ic{
   display:inline-flex; align-items:center; gap:8px;
   color:var(--ink-soft); text-decoration:none;
-  font-size:14.5px; font-weight:600;
+  font-size:14.5px; font-weight:600; padding:10px 0;
 }
 .foot-contact .ic svg{ width:20px; height:20px; display:block; flex:0 0 auto; }
-.foot-contact .ic:hover{ color:var(--ink); }
+@media (hover:hover) and (pointer:fine){ .foot-contact .ic:hover{ color:var(--ink); } }
 .foot-contact .ic span{ font-variant-numeric:tabular-nums; }
 
 .foot-base{
@@ -253,16 +316,16 @@ a:hover{ color:var(--ink); }
 
 /* ---------- появление при прокрутке ---------- */
 .anim [data-reveal]{
-  opacity:0; transform:translateY(22px);
-  transition:opacity .6s cubic-bezier(.22,.61,.36,1), transform .6s cubic-bezier(.22,.61,.36,1);
+  opacity:0; transform:translateY(16px);
+  transition:opacity .7s var(--ease-out), transform .8s var(--ease-out);
 }
 .anim [data-reveal].in{ opacity:1; transform:none; }
-.anim .work[data-reveal]{ transform:translateY(24px) scale(.985); }
-.anim .work[data-reveal].in{ transform:none; }
-/* фото героя — мягкий зум один раз при загрузке */
-.anim .hero{ overflow:hidden; }
-.anim .hero-photo{ animation:heroIn 1400ms cubic-bezier(.22,.61,.36,1) both; }
-@keyframes heroIn{ from{ transform:scale(1.07); opacity:.45; } to{ transform:scale(1); opacity:1; } }
+/* после появления у карточки своя быстрая реакция на наведение и нажатие */
+.anim .work[data-reveal].in{ transition:opacity .7s var(--ease-out), transform .3s var(--ease-out),
+  box-shadow .3s var(--ease-out), border-color .2s ease; }
+/* фото героя садится в кадр один раз; пока картинка не пришла, виден тёплый фон того же тона */
+.anim .hero-photo img{ animation:heroIn 1600ms var(--ease-out) both; }
+@keyframes heroIn{ from{ transform:scale(1.05); } to{ transform:none; } }
 
 /* ---------- окно «как связаться» ---------- */
 .contact-modal{
@@ -270,8 +333,12 @@ a:hover{ color:var(--ink); }
   display:flex; align-items:center; justify-content:center;
   padding:24px; background:rgba(36,31,27,0.42);
   -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
-  animation:modalFade .18s ease both;
+  animation:modalFade .2s ease-out both;
 }
+.contact-modal.is-closing{ animation:modalFadeOut .16s ease-out both; }
+.contact-modal.is-closing .contact-card{ animation:modalSink .16s ease-out both; }
+@keyframes modalFadeOut{ to{ opacity:0; } }
+@keyframes modalSink{ to{ opacity:0; transform:translateY(8px); } }
 .contact-modal[hidden]{ display:none; }
 @keyframes modalFade{ from{ opacity:0; } to{ opacity:1; } }
 .contact-card{
@@ -279,33 +346,37 @@ a:hover{ color:var(--ink); }
   background:var(--surface); border:1px solid var(--line);
   padding:clamp(28px, 5vw, 44px);
   box-shadow:0 30px 80px -24px rgba(36,31,27,0.4);
-  animation:modalRise .24s cubic-bezier(.22,.61,.36,1) both;
+  animation:modalRise .28s var(--ease-out) both;
 }
 @keyframes modalRise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
-.contact-card .eyebrow{ margin-bottom:12px; }
 .contact-card h2{ font-size:clamp(24px, 4vw, 30px); margin-bottom:10px; }
 .contact-lede{ color:var(--ink-soft); font-size:15px; margin-bottom:24px; }
 .contact-close{
-  position:absolute; top:12px; right:12px; width:38px; height:38px;
-  border:0; background:transparent; cursor:pointer;
-  font-size:26px; line-height:1; color:var(--ink-faint);
-  border-radius:50%; transition:background .15s ease, color .15s ease;
+  position:absolute; top:8px; right:8px; width:44px; height:44px; padding:12px;
+  border:0; background:transparent; cursor:pointer; color:var(--ink-faint);
+  border-radius:50%; transition:background-color .15s ease, color .15s ease, transform .14s var(--ease-out);
 }
-.contact-close:hover{ background:var(--surface-2); color:var(--ink); }
+.contact-close svg{ width:20px; height:20px; display:block; }
+.contact-close:active{ transform:scale(0.92); }
+@media (hover:hover) and (pointer:fine){ .contact-close:hover{ background:var(--surface-2); color:var(--ink); } }
 .contact-links{ display:flex; flex-direction:column; gap:10px; }
 .contact-link{
   display:flex; align-items:center; gap:12px;
   padding:14px 16px; border:1px solid var(--line);
   text-decoration:none; color:var(--ink); font-weight:600; font-size:15px;
-  transition:border-color .15s ease, background .15s ease, transform .15s ease;
+  transition:border-color .15s ease, background-color .15s ease, transform .15s var(--ease-out);
 }
-.contact-link:hover{ border-color:var(--ink); background:var(--surface-warm); color:var(--ink); transform:translateX(2px); }
+@media (hover:hover) and (pointer:fine){
+  .contact-link:hover{ border-color:var(--ink); background:var(--surface-warm); color:var(--ink); transform:translateX(2px); }
+}
+.contact-link:active{ transform:scale(0.98); }
 .contact-link svg{ width:22px; height:22px; flex:0 0 auto; color:var(--ink-soft); }
 .contact-link span{ font-variant-numeric:tabular-nums; }
 
+/* меньше движения: без сдвигов и масштаба; смена цвета и проявление окна остаются */
 @media (prefers-reduced-motion:reduce){
-  *{ transition:none !important; }
-  .anim [data-reveal]{ opacity:1 !important; transform:none !important; }
-  .anim .hero-photo{ animation:none !important; }
-  .contact-modal, .contact-card{ animation:none !important; }
+  .work, .work-shot img, .btn, .btn-ghost, .site-cta, .contact-link, .contact-close{ transform:none !important; }
+  .site-nav a::after{ transition:none; }
+  .contact-card{ animation-name:modalFade !important; }
+  .contact-modal.is-closing .contact-card{ animation-name:modalFadeOut !important; }
 }

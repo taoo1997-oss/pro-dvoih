@@ -119,6 +119,26 @@ def _fmt_date(iso):
     return f"{int(d)} {MONTHS[int(m) - 1]} {y}"
 
 
+def make_variants(src, out_dir, stem, widths):
+    """webp + jpg уменьшенные копии картинки для srcset. Пишутся только в dist/,
+    исходники в assets/ не трогаем. Возвращает [(w, h), ...]."""
+    from PIL import Image
+    img = Image.open(src).convert("RGB")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    sizes = []
+    for w in sorted({min(w, img.width) for w in widths}):
+        h = round(img.height * w / img.width)
+        im = img if w == img.width else img.resize((w, h), Image.LANCZOS)
+        im.save(out_dir / f"{stem}-{w}.webp", "WEBP", quality=78, method=6)
+        im.save(out_dir / f"{stem}-{w}.jpg", "JPEG", quality=80, optimize=True, progressive=True)
+        sizes.append((w, h))
+    return sizes
+
+
+WORK_THUMB_W = (400, 720)
+WORK_SIZES = "(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 330px"
+
+
 def _swatch_strip(c):
     """Полоска из 5 цветов дресс-кода пары — карточка читается как референс стиля."""
     dots = "".join(
@@ -132,14 +152,21 @@ def _card(c):
     p = c["palette"]
     e = lambda s: _html.escape(str(s), quote=True)
     slug = c["slug"]
+    # «Dusty rose — пыльная роза, романтика» -> заголовок + подпись, без тире
+    title, _, sub = c["style_name"].partition(" — ")
+    sub_html = f'<span class="work-sub">{e(sub)}</span>' if sub else ""
+    base = f'{{{{REL}}}}assets/works/{slug}'
+    srcset = lambda ext: ", ".join(f"{base}-{w}.{ext} {w}w" for w in WORK_THUMB_W)
     return (
         f'<a class="work" href="{{{{REL}}}}works/{slug}/" data-reveal style="--w-accent:{p["C_ACCENT"]}">'
-        f'<span class="work-shot">'
-        f'<img src="{{{{REL}}}}assets/works/{slug}.jpg" alt="Лендинг: {e(c["names"])}" loading="lazy">'
-        f'</span>'
+        f'<span class="work-shot"><picture>'
+        f'<source type="image/webp" srcset="{srcset("webp")}" sizes="{WORK_SIZES}">'
+        f'<img src="{base}-{WORK_THUMB_W[0]}.jpg" srcset="{srcset("jpg")}" sizes="{WORK_SIZES}" '
+        f'width="400" height="550" alt="Лендинг: {e(c["names"])}" loading="lazy" decoding="async">'
+        f'</picture></span>'
         f'<span class="work-body">'
         f'{_swatch_strip(c)}'
-        f'<span class="work-style">{e(c["style_name"])}</span>'
+        f'<span class="work-style">{e(title)}</span>{sub_html}'
         f'<span class="work-names">{e(c["names"])}</span>'
         f'<span class="work-meta">{e(_fmt_date(c["date_iso"]))} · {e(c["city_venue"])}</span>'
         f'</span>'
@@ -147,10 +174,25 @@ def _card(c):
     )
 
 
+def _cta_card():
+    """Пятнадцатая плитка в сетке: та же форма, что у работы, но про заказ.
+    Открывает то же окно «Как вам удобнее написать?», что и кнопки в шапке."""
+    return (
+        '<a class="work work--cta" href="{{REL}}#svyaz" data-open-contact data-reveal>'
+        '<span class="work-cta-body">'
+        '<span class="work-cta-title">Здесь может быть ваша свадьба</span>'
+        '<span class="work-cta-meta">3&nbsp;500&nbsp;₽ · 3–4 дня</span>'
+        '<span class="work-cta-btn">Оставить заявку</span>'
+        '</span>'
+        '</a>'
+    )
+
+
 def portfolio_grid(concepts):
     if not concepts:
         return '<p class="soon">Работы подтянутся из concepts.py.</p>'
-    return '<div class="works-grid">\n' + "\n".join(_card(c) for c in concepts) + '\n</div>'
+    cards = [_card(c) for c in concepts] + [_cta_card()]
+    return '<div class="works-grid">\n' + "\n".join(cards) + '\n</div>'
 
 
 def portfolio_preview(concepts, orders=("01", "02", "09", "13")):
@@ -226,6 +268,14 @@ def main():
 
     shutil.copy(HERE / "styles.css", DIST / "styles.css")
     shutil.copytree(HERE / "assets", DIST / "assets", dirs_exist_ok=True)
+    # уменьшенные превью работ (исходники 1200×1650, в сетке ~330px)
+    for c in concepts:
+        src = HERE / "assets" / "works" / f'{c["slug"]}.jpg'
+        if src.exists():
+            make_variants(src, DIST / "assets" / "works", c["slug"], WORK_THUMB_W)
+    # обложка главной: портретный кадр для телефона, широкий для экранов шире
+    make_variants(HERE / "assets" / "hero-pyotr-anna.jpg", DIST / "assets", "hero", (750, 1200))
+    make_variants(HERE / "assets" / "hero-pyotr-anna-wide.jpg", DIST / "assets", "hero-wide", (1280, 2000))
 
     if DOMAIN:
         (DIST / "CNAME").write_text(DOMAIN + "\n", encoding="utf-8")

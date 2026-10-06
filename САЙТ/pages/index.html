@@ -1,14 +1,21 @@
 <section class="hero">
-  <div class="hero-photo"></div>
+  <div class="hero-photo">
+    <picture>
+      <source media="(min-aspect-ratio: 5/4)" type="image/webp" srcset="{{REL}}assets/hero-wide-1280.webp 1280w, {{REL}}assets/hero-wide-2000.webp 2000w" sizes="100vw">
+      <source media="(min-aspect-ratio: 5/4)" srcset="{{REL}}assets/hero-wide-1280.jpg 1280w, {{REL}}assets/hero-wide-2000.jpg 2000w" sizes="100vw">
+      <source type="image/webp" srcset="{{REL}}assets/hero-750.webp 750w, {{REL}}assets/hero-1200.webp 1200w" sizes="100vw">
+      <img src="{{REL}}assets/hero-1200.jpg" srcset="{{REL}}assets/hero-750.jpg 750w, {{REL}}assets/hero-1200.jpg 1200w" sizes="100vw"
+        width="1200" height="1650" alt="Пётр и Анна, обложка одной из работ" fetchpriority="high">
+    </picture>
+  </div>
   <div class="hero-panel">
     <div class="wrap">
       <div class="hero-copy">
-        <p class="eyebrow" data-reveal>Сайт-приглашение вместо бумажной открытки</p>
-        <h1 data-reveal>Один экран с вашей свадьбой — ссылка гостям одним сообщением</h1>
-        <p class="hero-lede" data-reveal>Персональная страница: фото, дата, карта с маршрутом, обратный
-          отсчёт, программа дня, дресс-код и форма обратной связи для гостей — в ней они
-          сами отмечают, придут ли и с кем. Вам приходит готовый список.</p>
-        <p class="hero-meta" data-reveal>3–4 дня · 3 500 ₽ · всё включено</p>
+        <h1 data-reveal>Приглашение на&nbsp;свадьбу, которое отправляется одной ссылкой</h1>
+        <p class="hero-lede" data-reveal>Это ваша страница в интернете: фото, дата, карта
+          с маршрутом, обратный отсчёт, программа дня и дресс-код. Внизу
+          форма обратной связи для гостей. Каждый сам отмечает, придёт ли и с кем, а у вас собирается готовый список.</p>
+        <p class="hero-meta" data-reveal>3–4 дня · 3&nbsp;500&nbsp;₽ · всё включено</p>
         <div class="hero-actions" data-reveal>
           <a class="btn" href="{{REL}}#svyaz" data-open-contact>Оставить заявку</a>
           <a class="btn-ghost" href="{{REL}}portfolio/">Смотреть работы</a>
@@ -19,10 +26,9 @@
 </section>
 
 <section class="section wrap">
-  <p class="eyebrow" data-reveal>Работы</p>
-  <h2 data-reveal>Каждая свадьба — свой сайт</h2>
-  <p class="section-lede" data-reveal>Свой стиль, палитра и настроение под конкретную пару —
-    это видно уже на карточке. Откройте любую — увидите страницу целиком.</p>
+  <h2 data-reveal>Примеры работ</h2>
+  <p class="section-lede" data-reveal>Пары вымышленные, стили настоящие. Полоска цветов
+    на карточке — палитра дресс-кода, а по клику открывается полная страница с формой для гостей.</p>
   {{PORTFOLIO_PREVIEW}}
-  <a class="works-all" href="{{REL}}portfolio/" data-reveal>Все работы →</a>
+  <a class="works-all" href="{{REL}}portfolio/" data-reveal>Все работы</a>
 </section>
