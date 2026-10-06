@@ -1,3 +1,13 @@
+<div class="hero-photo" data-intro>
+  <picture>
+    <source media="(min-aspect-ratio: 5/4)" type="image/webp" srcset="{{REL}}assets/hero-wide-1280.webp 1280w, {{REL}}assets/hero-wide-2000.webp 2000w" sizes="100vw">
+    <source media="(min-aspect-ratio: 5/4)" srcset="{{REL}}assets/hero-wide-1280.jpg 1280w, {{REL}}assets/hero-wide-2000.jpg 2000w" sizes="100vw">
+    <source type="image/webp" srcset="{{REL}}assets/hero-750.webp 750w, {{REL}}assets/hero-1200.webp 1200w" sizes="100vw">
+    <img src="{{REL}}assets/hero-1200.jpg" srcset="{{REL}}assets/hero-750.jpg 750w, {{REL}}assets/hero-1200.jpg 1200w" sizes="100vw"
+      width="1200" height="1650" alt="Пётр и Анна, фото с обложки их приглашения" fetchpriority="high">
+  </picture>
+</div>
+
 <section class="hero wrap">
   <div class="hero-copy">
     <h1 class="hero-title" data-intro>Приглашение на&nbsp;свадьбу, которое <em>отправляется одной ссылкой</em></h1>
@@ -10,16 +20,9 @@
   </div>
 
   <div class="hero-visual">
-    <div class="hero-photo" data-intro>
-      <picture>
-        <source type="image/webp" srcset="{{REL}}assets/hero-750.webp 750w, {{REL}}assets/hero-1200.webp 1200w" sizes="(max-width: 860px) 72vw, 34vw">
-        <img src="{{REL}}assets/hero-1200.jpg" srcset="{{REL}}assets/hero-750.jpg 750w, {{REL}}assets/hero-1200.jpg 1200w" sizes="(max-width: 860px) 72vw, 34vw"
-          width="1200" height="1650" alt="Пётр и Анна, фото с обложки их приглашения" fetchpriority="high">
-      </picture>
-    </div>
     <figure class="phone phone--hero" data-intro>
       <div class="phone-screen">
-        <img class="phone-poster" src="{{REL}}assets/phone/cover-390.jpg" srcset="{{REL}}assets/phone/cover-390.jpg 390w, {{REL}}assets/phone/cover-780.jpg 780w" sizes="250px" width="390" height="844" alt="Приглашение Петра и Анны на экране телефона">
+        <img class="phone-poster" src="{{REL}}assets/phone/cover-390.jpg" srcset="{{REL}}assets/phone/cover-390.jpg 390w, {{REL}}assets/phone/cover-780.jpg 780w" sizes="260px" width="390" height="844" alt="Приглашение Петра и Анны на экране телефона">
         <img class="phone-strip" data-src="{{REL}}assets/phone/strip-780.webp" width="390" height="3343" alt="" aria-hidden="true">
       </div>
     </figure>

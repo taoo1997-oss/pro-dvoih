@@ -303,8 +303,9 @@ def main():
         src = HERE / "assets" / "works" / f'{c["slug"]}.jpg'
         if src.exists():
             make_variants(src, DIST / "assets" / "works", c["slug"], WORK_THUMB_W)
-    # фото пары на первом экране
+    # фото пары на первом экране: портретный кадр для телефона, широкий для экранов шире
     make_variants(HERE / "assets" / "hero-pyotr-anna.jpg", DIST / "assets", "hero", (750, 1200))
+    make_variants(HERE / "assets" / "hero-pyotr-anna-wide.jpg", DIST / "assets", "hero-wide", (1280, 2000))
     # кадры лендинга на телефоне (снимает snap_phone.js): 1x и 2x
     for shot in sorted((HERE / "assets" / "phone").glob("*.jpg")):
         make_variants(shot, DIST / "assets" / "phone", shot.stem, (390, 780))
