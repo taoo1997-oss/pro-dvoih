@@ -295,20 +295,25 @@
   tick(); setInterval(tick,1000);
 
   document.addEventListener('DOMContentLoaded',function(){
-    var els=document.querySelectorAll('.reveal');
-    if('IntersectionObserver' in window){
-      var obs=new IntersectionObserver(function(en){
-        en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
-      },{threshold:0.12});
-      els.forEach(function(e){ obs.observe(e); });
-      setTimeout(function(){ els.forEach(function(e){ e.classList.add('visible'); }); }, 3000);
-    } else { els.forEach(function(e){ e.classList.add('visible'); }); }
+    var els=document.querySelectorAll('.reveal, .reveal-fade');
+    function show(e){ e.classList.add('visible'); }
+    if(!('IntersectionObserver' in window)){ els.forEach(show); return; }
+    // то, что уже выше экрана (перезагрузка посреди страницы), показываем сразу —
+    // иначе при скролле вверх текст будет «всплывать» навстречу
+    els.forEach(function(e){ if(e.getBoundingClientRect().bottom<0) show(e); });
+    // срабатывает чуть раньше, чем блок дошёл до низа экрана: пустоты на месте текста не видно
+    var obs=new IntersectionObserver(function(en){
+      en.forEach(function(e){ if(e.isIntersecting){ show(e.target); obs.unobserve(e.target); } });
+    },{rootMargin:'0px 0px -6% 0px', threshold:0});
+    els.forEach(function(e){ if(!e.classList.contains('visible')) obs.observe(e); });
+    window.addEventListener('beforeprint',function(){ els.forEach(show); });
   });
 
   function addGuestRow(focus){
     var host=document.getElementById('extraGuestsList'); if(!host) return;
     var row=document.createElement('div'); row.className='guest-row';
     var inp=document.createElement('input'); inp.type='text'; inp.className='extra-guest-input'; inp.placeholder='Имя и фамилия гостя';
+    inp.setAttribute('aria-label','Имя и фамилия гостя');
     var rm=document.createElement('button'); rm.type='button'; rm.className='remove-guest';
     rm.setAttribute('aria-label','Убрать гостя'); rm.textContent='×';
     rm.addEventListener('click',function(){ row.remove(); });
@@ -319,12 +324,49 @@
   var addBtn=document.getElementById('addGuestBtn');
   if(addBtn) addBtn.addEventListener('click',function(){ addGuestRow(true); });
 
+  var EASE_OUT='cubic-bezier(0.23, 1, 0.32, 1)';
+  var REDUCE=window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var statusEl=document.getElementById('rsvpStatus');
+  if(statusEl){ statusEl.setAttribute('role','status'); statusEl.setAttribute('aria-live','polite'); }
+
+  // Ответ ушёл: форма гаснет, на её месте — благодарность. Подмена идёт, пока
+  // форма невидима, и экран подкручивается так, чтобы «спасибо» встало туда,
+  // где была кнопка: страница не прыгает под пальцем.
+  function showThanks(form, thanks, btn, name, extras){
+    var anchor=btn.getBoundingClientRect().top;
+    if(thanks.hasAttribute('data-rich')){
+      thanks.textContent='';
+      var add=function(cls, txt){ var p=document.createElement('p'); p.className=cls; p.textContent=txt; thanks.appendChild(p); };
+      add('thanks-title','Спасибо, '+name.split(/\s+/)[0]+'!');
+      add('thanks-line','Будем очень рады видеть вас 20 июня.');
+      if(extras.length) add('thanks-guests','С вами записали: '+extras.join(', '));
+    } else {
+      thanks.textContent='Спасибо! Будем очень рады видеть вас 20 июня.';
+    }
+    function swap(){
+      form.style.display='none';
+      thanks.style.display='block';
+      var top=thanks.getBoundingClientRect().top;
+      var target=Math.max(72, Math.min(anchor, window.innerHeight-thanks.offsetHeight-48));
+      window.scrollBy({top:top-target, left:0, behavior:'instant'});
+      thanks.setAttribute('tabindex','-1'); thanks.focus({preventScroll:true});
+      if(thanks.animate) thanks.animate(
+        [{opacity:0, transform:REDUCE?'none':'translateY(12px)'},{opacity:1, transform:'none'}],
+        {duration:REDUCE?220:560, easing:EASE_OUT});
+    }
+    if(form.animate){ form.animate([{opacity:1},{opacity:0}],{duration:200, easing:'ease-out', fill:'forwards'}).onfinish=swap; }
+    else swap();
+  }
+
   document.getElementById('rsvpForm').addEventListener('submit', async function(e){
     e.preventDefault();
-    var name=document.getElementById('guestName').value.trim();
+    var nameEl=document.getElementById('guestName');
+    var name=nameEl.value.trim();
     var st=document.getElementById('rsvpStatus'); st.textContent='';
-    if(!name){ st.textContent='Пожалуйста, впишите имя.'; return; }
-    var btn=document.getElementById('rsvpSubmit'); btn.disabled=true; btn.textContent='Отправляем...';
+    nameEl.removeAttribute('aria-invalid');
+    if(!name){ st.textContent='Впишите, пожалуйста, ваше имя: без него пара не поймёт, кто ответил.';
+      nameEl.setAttribute('aria-invalid','true'); nameEl.focus(); return; }
+    var btn=document.getElementById('rsvpSubmit'); btn.disabled=true; btn.setAttribute('aria-busy','true'); btn.textContent='Отправляем…';
     try{
       var extras=Array.from(document.querySelectorAll('.extra-guest-input')).map(function(i){return i.value.trim();}).filter(Boolean);
       var noteEl=document.getElementById('guestNote'); var note=noteEl?noteEl.value.trim():'';
@@ -333,13 +375,10 @@
         body:JSON.stringify({ wedding:'11-mihail-i-elena-ref1', name:name, guests:extras, note:note })
       });
       if(!resp.ok) throw new Error('rsvp '+resp.status);
-      document.getElementById('rsvpForm').style.display='none';
-      var t=document.getElementById('rsvpThanks');
-      t.textContent='Спасибо! Будем очень рады видеть вас 20 июня.';
-      t.style.display='block';
+      showThanks(document.getElementById('rsvpForm'), document.getElementById('rsvpThanks'), btn, name, extras);
     }catch(err){
-      st.textContent='Не получилось отправить. Попробуйте ещё раз.';
-      btn.disabled=false; btn.textContent='Подтвердить участие';
+      st.textContent='Не получилось отправить. Всё, что вы вписали, на месте: проверьте интернет и нажмите кнопку ещё раз.';
+      btn.disabled=false; btn.removeAttribute('aria-busy'); btn.textContent='Подтвердить участие';
     }
   });
 </script>

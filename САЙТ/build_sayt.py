@@ -241,6 +241,9 @@ def main():
             dst = DIST / "works" / c["slug"]
             dst.mkdir(parents=True, exist_ok=True)
             shutil.copy(lp, dst / "index.html")
+            # фото лендинга файлами (шаблоны из WEB_IMG_TEMPLATES в build.py)
+            if (lp.parent / "img").is_dir():
+                shutil.copytree(lp.parent / "img", dst / "img", dirs_exist_ok=True)
             # страница ответов гостей для пары — тот же RSVP-бэкенд, что и форма
             gl = lp.parent / "spisok-gostey.html"
             if gl.exists():

@@ -6,6 +6,11 @@
 
 Запуск:  python materialy/build/fetch_images.py
 Повторный запуск перекачивает всё заново (можно --skip-existing).
+
+  python materialy/build/fetch_images.py --wide-hero
+докачивает только hero-wide.jpg (2000×1250, тот же кадр, что hero) для шаблонов
+с отдельными файлами фото (WEB_IMG_TEMPLATES в build.py). Это обложка для
+горизонтальных экранов: портретная hero.jpg на десктопе растягивается и мылится.
 """
 import base64
 import io
@@ -93,7 +98,23 @@ def encode(img, start_q, max_kb):
     return raw, uri, q
 
 
+def fetch_wide_heroes():
+    from build import WEB_IMG_TEMPLATES
+    for c in CONCEPTS:
+        if c["template"] not in WEB_IMG_TEMPLATES:
+            continue
+        d = OUT / c["slug"]
+        src = json.loads((d / "sources.json").read_text(encoding="utf-8"))
+        img = download(src["hero"]["id"], 2000, 1250, "faces,center")
+        raw, _, q = encode(img, 80, 320)
+        (d / "hero-wide.jpg").write_bytes(raw)
+        print(f"  {c['slug']}: hero-wide.jpg {len(raw) // 1024} KB q{q}")
+
+
 def main():
+    if "--wide-hero" in sys.argv:
+        fetch_wide_heroes()
+        return
     skip_existing = "--skip-existing" in sys.argv
     total_bytes = 0
     for c in CONCEPTS:

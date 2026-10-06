@@ -25,6 +25,12 @@ PORTF = ROOT / "ПОРТФОЛИО"
 # Без завершающего слэша.
 RSVP_API = "https://rsvp-backend.taoo1997.workers.dev"
 
+# Шаблоны, у которых фото лежат рядом с index.html в img/ (webp + jpg в двух
+# размерах, srcset, ленивая галерея, og:image для превью в мессенджерах).
+# Остальные шаблоны пока встраивают фото в HTML как data:URI.
+WEB_IMG_TEMPLATES = {"A"}
+SITE_ORIGIN = "https://pro-dvoih.ru"   # для абсолютного og:image (тот же DOMAIN в САЙТ/build_sayt.py)
+
 MONTHS_GEN = ["января", "февраля", "марта", "апреля", "мая", "июня",
               "июля", "августа", "сентября", "октября", "ноября", "декабря"]
 WD = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
@@ -43,8 +49,9 @@ TEMPLATE_FILE = {
 _GV = "https://fonts.googleapis.com/css2"
 TEMPLATE_FONTS = {
     "A": {
+        # Great Vibes у A вшит в страницу (name_font_css), с Google не грузится
         "FONT_LINK": _GV + "?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500"
-                     "&family=Manrope:wght@400;500;600;700&family=Great+Vibes&display=swap",
+                     "&family=Manrope:wght@400;500;600;700&display=swap",
         "FONT_HEAD": "'Cormorant Garamond', 'Times New Roman', serif",
         "FONT_TEXT": "'Manrope', system-ui, sans-serif",
         "FONT_NAME": "'Great Vibes', 'Segoe Script', cursive",
@@ -122,20 +129,25 @@ SHARED_SCRIPT = r"""<script>
   tick(); setInterval(tick,1000);
 
   document.addEventListener('DOMContentLoaded',function(){
-    var els=document.querySelectorAll('.reveal');
-    if('IntersectionObserver' in window){
-      var obs=new IntersectionObserver(function(en){
-        en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
-      },{threshold:0.12});
-      els.forEach(function(e){ obs.observe(e); });
-      setTimeout(function(){ els.forEach(function(e){ e.classList.add('visible'); }); }, 3000);
-    } else { els.forEach(function(e){ e.classList.add('visible'); }); }
+    var els=document.querySelectorAll('.reveal, .reveal-fade');
+    function show(e){ e.classList.add('visible'); }
+    if(!('IntersectionObserver' in window)){ els.forEach(show); return; }
+    // то, что уже выше экрана (перезагрузка посреди страницы), показываем сразу —
+    // иначе при скролле вверх текст будет «всплывать» навстречу
+    els.forEach(function(e){ if(e.getBoundingClientRect().bottom<0) show(e); });
+    // срабатывает чуть раньше, чем блок дошёл до низа экрана: пустоты на месте текста не видно
+    var obs=new IntersectionObserver(function(en){
+      en.forEach(function(e){ if(e.isIntersecting){ show(e.target); obs.unobserve(e.target); } });
+    },{rootMargin:'0px 0px -6% 0px', threshold:0});
+    els.forEach(function(e){ if(!e.classList.contains('visible')) obs.observe(e); });
+    window.addEventListener('beforeprint',function(){ els.forEach(show); });
   });
 
   function addGuestRow(focus){
     var host=document.getElementById('extraGuestsList'); if(!host) return;
     var row=document.createElement('div'); row.className='guest-row';
     var inp=document.createElement('input'); inp.type='text'; inp.className='extra-guest-input'; inp.placeholder='Имя и фамилия гостя';
+    inp.setAttribute('aria-label','Имя и фамилия гостя');
     var rm=document.createElement('button'); rm.type='button'; rm.className='remove-guest';
     rm.setAttribute('aria-label','Убрать гостя'); rm.textContent='×';
     rm.addEventListener('click',function(){ row.remove(); });
@@ -146,12 +158,49 @@ SHARED_SCRIPT = r"""<script>
   var addBtn=document.getElementById('addGuestBtn');
   if(addBtn) addBtn.addEventListener('click',function(){ addGuestRow(true); });
 
+  var EASE_OUT='cubic-bezier(0.23, 1, 0.32, 1)';
+  var REDUCE=window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var statusEl=document.getElementById('rsvpStatus');
+  if(statusEl){ statusEl.setAttribute('role','status'); statusEl.setAttribute('aria-live','polite'); }
+
+  // Ответ ушёл: форма гаснет, на её месте — благодарность. Подмена идёт, пока
+  // форма невидима, и экран подкручивается так, чтобы «спасибо» встало туда,
+  // где была кнопка: страница не прыгает под пальцем.
+  function showThanks(form, thanks, btn, name, extras){
+    var anchor=btn.getBoundingClientRect().top;
+    if(thanks.hasAttribute('data-rich')){
+      thanks.textContent='';
+      var add=function(cls, txt){ var p=document.createElement('p'); p.className=cls; p.textContent=txt; thanks.appendChild(p); };
+      add('thanks-title','Спасибо, '+name.split(/\s+/)[0]+'!');
+      add('thanks-line','Будем очень рады видеть вас {{DATE_SHORT}}.');
+      if(extras.length) add('thanks-guests','С вами записали: '+extras.join(', '));
+    } else {
+      thanks.textContent='Спасибо! Будем очень рады видеть вас {{DATE_SHORT}}.';
+    }
+    function swap(){
+      form.style.display='none';
+      thanks.style.display='block';
+      var top=thanks.getBoundingClientRect().top;
+      var target=Math.max(72, Math.min(anchor, window.innerHeight-thanks.offsetHeight-48));
+      window.scrollBy({top:top-target, left:0, behavior:'instant'});
+      thanks.setAttribute('tabindex','-1'); thanks.focus({preventScroll:true});
+      if(thanks.animate) thanks.animate(
+        [{opacity:0, transform:REDUCE?'none':'translateY(12px)'},{opacity:1, transform:'none'}],
+        {duration:REDUCE?220:560, easing:EASE_OUT});
+    }
+    if(form.animate){ form.animate([{opacity:1},{opacity:0}],{duration:200, easing:'ease-out', fill:'forwards'}).onfinish=swap; }
+    else swap();
+  }
+
   document.getElementById('rsvpForm').addEventListener('submit', async function(e){
     e.preventDefault();
-    var name=document.getElementById('guestName').value.trim();
+    var nameEl=document.getElementById('guestName');
+    var name=nameEl.value.trim();
     var st=document.getElementById('rsvpStatus'); st.textContent='';
-    if(!name){ st.textContent='Пожалуйста, впишите имя.'; return; }
-    var btn=document.getElementById('rsvpSubmit'); btn.disabled=true; btn.textContent='Отправляем...';
+    nameEl.removeAttribute('aria-invalid');
+    if(!name){ st.textContent='Впишите, пожалуйста, ваше имя: без него пара не поймёт, кто ответил.';
+      nameEl.setAttribute('aria-invalid','true'); nameEl.focus(); return; }
+    var btn=document.getElementById('rsvpSubmit'); btn.disabled=true; btn.setAttribute('aria-busy','true'); btn.textContent='Отправляем…';
     try{
       var extras=Array.from(document.querySelectorAll('.extra-guest-input')).map(function(i){return i.value.trim();}).filter(Boolean);
       var noteEl=document.getElementById('guestNote'); var note=noteEl?noteEl.value.trim():'';
@@ -160,13 +209,10 @@ SHARED_SCRIPT = r"""<script>
         body:JSON.stringify({ wedding:'{{WEDDING_ID}}', name:name, guests:extras, note:note })
       });
       if(!resp.ok) throw new Error('rsvp '+resp.status);
-      document.getElementById('rsvpForm').style.display='none';
-      var t=document.getElementById('rsvpThanks');
-      t.textContent='Спасибо! Будем очень рады видеть вас {{DATE_SHORT}}.';
-      t.style.display='block';
+      showThanks(document.getElementById('rsvpForm'), document.getElementById('rsvpThanks'), btn, name, extras);
     }catch(err){
-      st.textContent='Не получилось отправить. Попробуйте ещё раз.';
-      btn.disabled=false; btn.textContent='Подтвердить участие';
+      st.textContent='Не получилось отправить. Всё, что вы вписали, на месте: проверьте интернет и нажмите кнопку ещё раз.';
+      btn.disabled=false; btn.removeAttribute('aria-busy'); btn.textContent='Подтвердить участие';
     }
   });
 </script>"""
@@ -227,6 +273,137 @@ def render(tpl, repl):
     return out
 
 
+def _save_variants(img, stem, widths, out):
+    """Пишет stem-<w>.webp и stem-<w>.jpg для каждой ширины (не больше исходника).
+    Возвращает [(w, h), ...] реально записанных размеров."""
+    from PIL import Image
+    sizes = []
+    for w in sorted({min(w, img.width) for w in widths}):
+        h = round(img.height * w / img.width)
+        im = img if w == img.width else img.resize((w, h), Image.LANCZOS)
+        im.save(out / f"{stem}-{w}.webp", "WEBP", quality=78, method=6)
+        im.save(out / f"{stem}-{w}.jpg", "JPEG", quality=80, optimize=True, progressive=True)
+        sizes.append((w, h))
+    return sizes
+
+
+def _picture(stem, sizes, attr_sizes, alt, img_attrs, media=None, wide=None):
+    """<picture> с webp/jpg-srcset. wide = (stem, sizes) — отдельный кадр для
+    горизонтальных экранов (обложка)."""
+    def srcset(st, sz, ext):
+        return ", ".join(f"img/{st}-{w}.{ext} {w}w" for w, _ in sz)
+    src = []
+    if wide:
+        wst, wsz = wide
+        for ext, typ in (("webp", ' type="image/webp"'), ("jpg", "")):
+            src.append(f'<source media="(min-aspect-ratio: 5/4)"{typ} srcset="{srcset(wst, wsz, ext)}" sizes="{attr_sizes}">')
+    src.append(f'<source type="image/webp" srcset="{srcset(stem, sizes, "webp")}" sizes="{attr_sizes}">')
+    w, h = sizes[-1]
+    src.append(f'<img src="img/{stem}-{w}.jpg" srcset="{srcset(stem, sizes, "jpg")}" sizes="{attr_sizes}" '
+               f'width="{w}" height="{h}" alt="{alt}" {img_attrs}>')
+    return "<picture>" + "".join(src) + "</picture>"
+
+
+def _lum(hx):
+    r, g, b = (int(hx.lstrip("#")[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    f = lambda c: c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4  # noqa: E731
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+
+
+def _contrast(a, b):
+    la, lb = sorted((_lum(a), _lum(b)), reverse=True)
+    return (la + 0.05) / (lb + 0.05)
+
+
+def ensure_contrast(fg, toward, bgs, target=4.6):
+    """Подмешивает к цвету fg цвет toward шагами по 4%, пока fg не даст
+    контраст target со всеми фонами bgs (WCAG AA для мелкого текста).
+    Оттенок палитры сохраняется, цвет только чуть темнеет."""
+    def mix(t):
+        a = [int(fg.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+        b = [int(toward.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+        return "#" + "".join(f"{round(x + (y - x) * t):02X}" for x, y in zip(a, b))
+    for step in range(26):
+        c = mix(step * 0.04)
+        if all(_contrast(c, bg) >= target for bg in bgs):
+            return c
+    return toward
+
+
+FONT_EMBED_DIR =Path(__file__).resolve().parent / "shrifty-vshitye"
+
+
+def name_font_css(text):
+    """@font-face для Great Vibes, вшитый в страницу и урезанный до символов,
+    которые на ней набраны этим шрифтом (имена, инициалы, время в программе).
+    ~10 КБ вместо загрузки с Google Fonts: имена появляются сразу в своём
+    начертании и не перескакивают из запасного шрифта.
+    Исходники — woff2-подмножества Google Fonts (OFL) в shrifty-vshitye/."""
+    import base64
+    import io
+    from fontTools import subset
+    from fontTools.ttLib import TTFont
+    chars = set(text) | set("0123456789:·&. \u00a0")
+    rules = []
+    for fp in sorted(FONT_EMBED_DIR.glob("great-vibes-*.woff2")):
+        font = TTFont(fp)
+        cmap = font.getBestCmap()
+        have = sorted(ord(ch) for ch in chars if ord(ch) in cmap)
+        if not have:
+            continue
+        opts = subset.Options()
+        opts.flavor = "woff2"
+        opts.layout_features = ["*"]
+        sub = subset.Subsetter(opts)
+        sub.populate(unicodes=have)
+        sub.subset(font)
+        buf = io.BytesIO()
+        font.flavor = "woff2"
+        font.save(buf)
+        b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+        urange = ",".join(f"U+{u:X}" for u in have)
+        rules.append("@font-face{font-family:'Great Vibes';font-style:normal;font-weight:400;"
+                     f"font-display:block;src:url(data:font/woff2;base64,{b64}) format('woff2');"
+                     f"unicode-range:{urange};}}")
+    return "\n  ".join(rules)
+
+
+def export_web_images(c, out_dir, alts):
+    """Фото работы — файлами в <out_dir>/img/ вместо data:URI в HTML.
+    Источник: foto-ishodniki/<slug>/{hero,g1,g2,g3}.jpg и, если есть, hero-wide.jpg
+    (докачивает fetch_images.py --wide-hero)."""
+    from PIL import Image, ImageOps
+    src = IMG_DIR / c["slug"]
+    out = out_dir / "img"
+    if out.exists():
+        for f in out.glob("*"):
+            f.unlink()
+    out.mkdir(parents=True, exist_ok=True)
+
+    hero = Image.open(src / "hero.jpg").convert("RGB")
+    hero_sz = _save_variants(hero, "hero", (750, 1200), out)
+    wide = None
+    og_src = hero
+    if (src / "hero-wide.jpg").exists():
+        hw = Image.open(src / "hero-wide.jpg").convert("RGB")
+        wide = ("hero-wide", _save_variants(hw, "hero-wide", (1280, 2000), out))
+        og_src = hw
+    # превью ссылки в Telegram/WhatsApp: 1200×630
+    ImageOps.fit(og_src, (1200, 630), Image.LANCZOS, centering=(0.5, 0.4)).save(
+        out / "og.jpg", "JPEG", quality=82, optimize=True, progressive=True)
+
+    tok = {"PIC_HERO": _picture("hero", hero_sz, "100vw", alts["hero"],
+                                'fetchpriority="high"', wide=wide)}
+    gal_sizes = "(max-width: 600px) calc(100vw - 48px), 443px"
+    for role in ("g1", "g2", "g3"):
+        im = Image.open(src / f"{role}.jpg").convert("RGB")
+        sz = _save_variants(im, role, (640, im.width), out)
+        tok["PIC_" + role.upper()] = _picture(role, sz, gal_sizes, alts[role],
+                                              'loading="lazy" decoding="async"')
+    tok["OG_IMAGE"] = f'{SITE_ORIGIN}/works/{c["slug"]}/img/og.jpg'
+    return tok
+
+
 def build_concept(c, tpl_cache, guests_tpl):
     slug = c["slug"]
     jp = IMG_DIR / slug / "images.json"
@@ -245,6 +422,8 @@ def build_concept(c, tpl_cache, guests_tpl):
         "IMG_HERO": uris["hero"], "IMG_G1": uris["g1"], "IMG_G2": uris["g2"], "IMG_G3": uris["g3"],
         "GCAP1": e(g1), "GCAP2": e(g2), "GCAP3": e(g3),
         "NAMES": e(c["names"]), "INITIALS": e(c["initials"]),
+        # для крупного набора: «и» не остаётся висеть в конце строки
+        "NAMES_NB": e(c["names"]).replace(" и ", " и&nbsp;").replace(" & ", " &amp;&nbsp;"),
         "HERO_EYEBROW": e(c["hero_eyebrow"]), "CITY_VENUE": e(c["city_venue"]),
         "INTRO_LEAD": e(c["intro_lead"]), "INTRO_BODY": e(c["intro_body"]),
         "WHERE_VALUE": e(c["where_value"]), "WHERE_EXTRA": e(c["where_extra"]),
@@ -264,6 +443,15 @@ def build_concept(c, tpl_cache, guests_tpl):
 
     out_dir = PORTF / dir_name(c)
     out_dir.mkdir(parents=True, exist_ok=True)
+    if c["template"] in WEB_IMG_TEMPLATES:
+        base.update(export_web_images(c, out_dir, {
+            "hero": base["NAMES"], "g1": base["GCAP1"], "g2": base["GCAP2"], "g3": base["GCAP3"]}))
+        # мелкий вторичный текст и акцентные подписи — не ниже 4.5:1 на обоих фонах;
+        # accent-deep заодно становится фоном кнопки с белым текстом
+        base["C_TEXT_SOFT"] = ensure_contrast(p["C_TEXT_SOFT"], p["C_TEXT"], [p["C_BG"], p["C_BG2"]])
+        base["C_ACCENT_DEEP"] = ensure_contrast(p["C_ACCENT_DEEP"], p["C_INK"], [p["C_BG"], p["C_BG2"], "#FFFFFF"])
+        base["NAME_FONT_CSS"] = name_font_css(
+            c["names"] + c["initials"] + "".join(t for t, _, _ in c["program"]))
     (out_dir / "index.html").write_text(render(tpl_cache[c["template"]], base), encoding="utf-8")
     (out_dir / "spisok-gostey.html").write_text(render(guests_tpl, base), encoding="utf-8")
     return c["template"], (out_dir / "index.html").stat().st_size / 1024
