@@ -13,10 +13,9 @@
 <link rel="icon" type="image/png" sizes="16x16" href="{{REL}}assets/favicon-16.png">
 <link rel="apple-touch-icon" href="{{REL}}assets/apple-touch-icon.png">
 <link rel="manifest" href="{{REL}}assets/site.webmanifest">
-<meta name="theme-color" content="#F5EDE5">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Golos+Text:wght@400;500&display=swap">
+<meta name="theme-color" content="#F2F1EE">
+<link rel="preload" href="{{REL}}assets/fonts/cormorant-cyr.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{REL}}assets/fonts/cormorant-italic-cyr.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{{REL}}assets/fonts/patefon.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{REL}}styles.css">
 <script>
@@ -106,6 +105,14 @@
 <main id="main">
 {{CONTENT}}
 </main>
+
+<section class="cta-band" aria-labelledby="ctaTitle">
+  <div class="wrap cta-inner">
+    <h2 id="ctaTitle" class="cta-title" data-reveal>Напишите дату и&nbsp;имена. <em>Остальное соберу&nbsp;я.</em></h2>
+    <p class="cta-lede" data-reveal>Пришлю бриф на&nbsp;10–15 минут. Через 3–4&nbsp;дня после оплаты у&nbsp;вас ссылка для гостей.</p>
+    <a class="btn btn--light" href="{{REL}}#svyaz" data-open-contact data-reveal>Оставить заявку</a>
+  </div>
+</section>
 
 <footer class="site-foot">
   <div class="wrap foot-inner">
@@ -225,13 +232,13 @@
       return;
     }
     // лёгкий каскад для соседних элементов в группе
-    var groups = document.querySelectorAll('.hero-copy, .works-grid, .steps');
+    var groups = document.querySelectorAll('.works-grid, .steps, .cta-inner, .price-band, .addons');
     Array.prototype.forEach.call(groups, function (g) {
       var kids = g.querySelectorAll('[data-reveal]');
       Array.prototype.forEach.call(kids, function (k, i) {
         // в сетке карточки появляются рядами, задержка — по месту в ряду
         var step = g.classList.contains('works-grid') ? i % 3 : Math.min(i, 4);
-        k.style.transitionDelay = step * 60 + 'ms';
+        k.style.transitionDelay = step * 70 + 'ms';
       });
     });
     // то, что уже выше экрана (вернулись «назад» посреди страницы), показываем сразу
@@ -244,6 +251,78 @@
       });
     }, { rootMargin: '0px 0px -6% 0px', threshold: 0 });
     Array.prototype.forEach.call(els, function (el) { if (!el.classList.contains('in')) io.observe(el); });
+  })();
+</script>
+
+<script>
+  /* Первый экран, телефон, «Что увидят гости», лента работ */
+  (function () {
+    var root = document.documentElement;
+    var anim = root.classList.contains('anim');
+    var each = function (list, fn) { Array.prototype.forEach.call(list, fn); };
+
+    // Вход первого экрана: один раз при загрузке, по очереди
+    each(document.querySelectorAll('[data-intro]'), function (el, i) {
+      el.style.setProperty('--d', (i * 90) + 'ms');
+    });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.add('intro-go'); }); });
+
+    // Телефон на первом экране: длинный кадр лендинга грузим после страницы
+    // и прокручиваем его сами. Пока телефон не виден, анимация стоит.
+    var strip = document.querySelector('.phone-strip');
+    if (strip && anim) {
+      window.addEventListener('load', function () {
+        strip.src = strip.getAttribute('data-src');
+        var go = function () { strip.closest('.phone').classList.add('is-playing'); };
+        if (strip.decode) strip.decode().then(go, function () {}); else strip.onload = go;
+      });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (ents) {
+          strip.style.animationPlayState = ents[0].isIntersecting ? 'running' : 'paused';
+        }).observe(strip.closest('.phone'));
+      }
+    }
+
+    // «Что увидят гости»: шаг, который сейчас на линии чтения, меняет экран телефона
+    var steps = document.querySelectorAll('.story-step');
+    var screens = document.querySelectorAll('.phone--story .phone-screen img');
+    if (steps.length && screens.length && 'IntersectionObserver' in window) {
+      var cur = 0;
+      var show = function (n) {
+        if (n === cur) return;
+        screens[cur].classList.remove('is-on'); steps[cur].classList.remove('is-on');
+        screens[n].classList.add('is-on'); steps[n].classList.add('is-on');
+        cur = n;
+      };
+      // на телефоне линия ниже: верх экрана занят закреплённым телефоном
+      var narrow = matchMedia('(max-width: 860px)').matches;
+      var so = new IntersectionObserver(function (ents) {
+        ents.forEach(function (e) {
+          if (e.isIntersecting) show(+e.target.getAttribute('data-screen'));
+        });
+      }, { rootMargin: narrow ? '-62% 0px -30% 0px' : '-48% 0px -48% 0px' });
+      each(steps, function (s) { so.observe(s); });
+    }
+
+    // Лента работ: кнопки листают на ширину видимой части, крайние гаснут
+    each(document.querySelectorAll('.works-band'), function (band) {
+      var track = band.querySelector('.rail');
+      if (!track) return;
+      var btns = band.querySelectorAll('[data-rail]');
+      var sync = function () {
+        var max = track.scrollWidth - track.clientWidth - 2;
+        btns[0].disabled = track.scrollLeft <= 2;
+        btns[1].disabled = track.scrollLeft >= max;
+      };
+      each(btns, function (b) {
+        b.addEventListener('click', function () {
+          var dir = +b.getAttribute('data-rail');
+          track.scrollBy({ left: dir * track.clientWidth * 0.8, behavior: anim ? 'smooth' : 'auto' });
+        });
+      });
+      track.addEventListener('scroll', function () { requestAnimationFrame(sync); }, { passive: true });
+      sync();
+    });
   })();
 </script>
 

@@ -195,11 +195,41 @@ def portfolio_grid(concepts):
     return '<div class="works-grid">\n' + "\n".join(cards) + '\n</div>'
 
 
-def portfolio_preview(concepts, orders=("01", "02", "09", "13")):
-    picks = [c for c in concepts if c["order"] in orders] or concepts[:4]
+RAIL_SIZES = "(max-width: 700px) 72vw, 340px"
+
+
+def _rail_card(c):
+    """Карточка ленты на главной: крупное фото, под ним стиль и палитра."""
+    e = lambda s: _html.escape(str(s), quote=True)
+    slug = c["slug"]
+    title, _, sub = c["style_name"].partition(" — ")
+    base = f'{{{{REL}}}}assets/works/{slug}'
+    srcset = lambda ext: ", ".join(f"{base}-{w}.{ext} {w}w" for w in WORK_THUMB_W)
+    return (
+        f'<li class="rail-item"><a class="rail-card" href="{{{{REL}}}}works/{slug}/">'
+        f'<span class="rail-shot"><picture>'
+        f'<source type="image/webp" srcset="{srcset("webp")}" sizes="{RAIL_SIZES}">'
+        f'<img src="{base}-{WORK_THUMB_W[0]}.jpg" srcset="{srcset("jpg")}" sizes="{RAIL_SIZES}" '
+        f'width="400" height="550" alt="Лендинг: {e(c["names"])}" loading="lazy" decoding="async">'
+        f'</picture></span>'
+        f'{_swatch_strip(c)}'
+        f'<span class="rail-style">{e(title)}</span>'
+        f'<span class="rail-sub">{e(sub or c["names"])}</span>'
+        f'</a></li>'
+    )
+
+
+def portfolio_preview(concepts, orders=("01", "02", "09", "13", "03", "06", "11", "14")):
+    """Горизонтальная лента на главной: 8 работ и в конце ссылка на все."""
+    picks = [c for o in orders for c in concepts if c["order"] == o] or concepts[:8]
     if not picks:
         return ""
-    return '<div class="works-grid works-grid--preview">\n' + "\n".join(_card(c) for c in picks) + '\n</div>'
+    end = (f'<li class="rail-item rail-item--end"><a class="rail-end" href="{{{{REL}}}}portfolio/">'
+           f'<span class="rail-end-num">{len(concepts)}</span>'
+           f'<span class="rail-end-txt">работ в&nbsp;разных стилях</span>'
+           f'<span class="link-arrow">Смотреть все</span></a></li>')
+    items = "\n".join(_rail_card(c) for c in picks)
+    return f'<div class="rail" data-rail-track><ul class="rail-track">\n{items}\n{end}\n</ul></div>'
 
 
 def build_nav(current_slug):
@@ -273,9 +303,11 @@ def main():
         src = HERE / "assets" / "works" / f'{c["slug"]}.jpg'
         if src.exists():
             make_variants(src, DIST / "assets" / "works", c["slug"], WORK_THUMB_W)
-    # обложка главной: портретный кадр для телефона, широкий для экранов шире
+    # фото пары на первом экране
     make_variants(HERE / "assets" / "hero-pyotr-anna.jpg", DIST / "assets", "hero", (750, 1200))
-    make_variants(HERE / "assets" / "hero-pyotr-anna-wide.jpg", DIST / "assets", "hero-wide", (1280, 2000))
+    # кадры лендинга на телефоне (снимает snap_phone.js): 1x и 2x
+    for shot in sorted((HERE / "assets" / "phone").glob("*.jpg")):
+        make_variants(shot, DIST / "assets" / "phone", shot.stem, (390, 780))
 
     if DOMAIN:
         (DIST / "CNAME").write_text(DOMAIN + "\n", encoding="utf-8")

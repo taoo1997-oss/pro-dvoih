@@ -1,34 +1,92 @@
-<section class="hero">
-  <div class="hero-photo">
-    <picture>
-      <source media="(min-aspect-ratio: 5/4)" type="image/webp" srcset="{{REL}}assets/hero-wide-1280.webp 1280w, {{REL}}assets/hero-wide-2000.webp 2000w" sizes="100vw">
-      <source media="(min-aspect-ratio: 5/4)" srcset="{{REL}}assets/hero-wide-1280.jpg 1280w, {{REL}}assets/hero-wide-2000.jpg 2000w" sizes="100vw">
-      <source type="image/webp" srcset="{{REL}}assets/hero-750.webp 750w, {{REL}}assets/hero-1200.webp 1200w" sizes="100vw">
-      <img src="{{REL}}assets/hero-1200.jpg" srcset="{{REL}}assets/hero-750.jpg 750w, {{REL}}assets/hero-1200.jpg 1200w" sizes="100vw"
-        width="1200" height="1650" alt="Пётр и Анна, обложка одной из работ" fetchpriority="high">
-    </picture>
-  </div>
-  <div class="hero-panel">
-    <div class="wrap">
-      <div class="hero-copy">
-        <h1 data-reveal>Приглашение на&nbsp;свадьбу, которое отправляется одной ссылкой</h1>
-        <p class="hero-lede" data-reveal>Это ваша страница в интернете: фото, дата, карта
-          с маршрутом, обратный отсчёт, программа дня и дресс-код. Внизу
-          форма обратной связи для гостей. Каждый сам отмечает, придёт ли и с кем, а у вас собирается готовый список.</p>
-        <p class="hero-meta" data-reveal>3–4 дня · 3&nbsp;500&nbsp;₽ · всё включено</p>
-        <div class="hero-actions" data-reveal>
-          <a class="btn" href="{{REL}}#svyaz" data-open-contact>Оставить заявку</a>
-          <a class="btn-ghost" href="{{REL}}portfolio/">Смотреть работы</a>
-        </div>
-      </div>
+<section class="hero wrap">
+  <div class="hero-copy">
+    <h1 class="hero-title" data-intro>Приглашение на&nbsp;свадьбу, которое <em>отправляется одной ссылкой</em></h1>
+    <p class="hero-lede" data-intro>Фото, дата, карта, программа дня и&nbsp;форма для гостей. Каждый отвечает сам, а&nbsp;у&nbsp;вас собирается список.</p>
+    <div class="hero-actions" data-intro>
+      <a class="btn" href="{{REL}}#svyaz" data-open-contact>Оставить заявку</a>
+      <a class="link-arrow" href="#kak-vidit-gost">Как это выглядит</a>
     </div>
+    <p class="hero-meta" data-intro>3&nbsp;500&nbsp;₽, готово за&nbsp;3–4&nbsp;дня</p>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hero-photo" data-intro>
+      <picture>
+        <source type="image/webp" srcset="{{REL}}assets/hero-750.webp 750w, {{REL}}assets/hero-1200.webp 1200w" sizes="(max-width: 860px) 72vw, 34vw">
+        <img src="{{REL}}assets/hero-1200.jpg" srcset="{{REL}}assets/hero-750.jpg 750w, {{REL}}assets/hero-1200.jpg 1200w" sizes="(max-width: 860px) 72vw, 34vw"
+          width="1200" height="1650" alt="Пётр и Анна, фото с обложки их приглашения" fetchpriority="high">
+      </picture>
+    </div>
+    <figure class="phone phone--hero" data-intro>
+      <div class="phone-screen">
+        <img class="phone-poster" src="{{REL}}assets/phone/cover-390.jpg" srcset="{{REL}}assets/phone/cover-390.jpg 390w, {{REL}}assets/phone/cover-780.jpg 780w" sizes="250px" width="390" height="844" alt="Приглашение Петра и Анны на экране телефона">
+        <img class="phone-strip" data-src="{{REL}}assets/phone/strip-780.webp" width="390" height="3343" alt="" aria-hidden="true">
+      </div>
+    </figure>
   </div>
 </section>
 
-<section class="section wrap">
-  <h2 data-reveal>Примеры работ</h2>
-  <p class="section-lede" data-reveal>Пары вымышленные, стили настоящие. Полоска цветов
-    на карточке — палитра дресс-кода, а по клику открывается полная страница с формой для гостей.</p>
+<section class="story" id="kak-vidit-gost" aria-labelledby="storyTitle">
+  <div class="wrap">
+    <h2 id="storyTitle" class="story-title" data-reveal>Что увидят гости</h2>
+  </div>
+  <div class="wrap story-grid">
+    <div class="story-stage">
+      <figure class="phone phone--story" aria-hidden="true">
+        <div class="phone-screen">
+          <img class="is-on" src="{{REL}}assets/phone/cover-780.webp" width="390" height="844" alt="" decoding="async">
+          <img src="{{REL}}assets/phone/details-780.webp" width="390" height="844" alt="" decoding="async">
+          <img src="{{REL}}assets/phone/program-780.webp" width="390" height="844" alt="" decoding="async">
+          <img src="{{REL}}assets/phone/dress-780.webp" width="390" height="844" alt="" decoding="async">
+          <img src="{{REL}}assets/phone/rsvp-780.webp" width="390" height="844" alt="" decoding="async">
+          <img src="{{REL}}assets/phone/list-780.webp" width="390" height="844" alt="" decoding="async">
+        </div>
+      </figure>
+    </div>
+    <ol class="story-steps">
+      <li class="story-step is-on" data-screen="0">
+        <h3>Ссылка в&nbsp;сообщении</h3>
+        <p>Гость открывает её в&nbsp;Telegram или WhatsApp. Первым видит ваши имена, фото и&nbsp;дату.</p>
+      </li>
+      <li class="story-step" data-screen="1">
+        <h3>Когда и&nbsp;где</h3>
+        <p>Адрес с&nbsp;кнопкой «Открыть карту» и&nbsp;календарь, где отмечен ваш день.</p>
+      </li>
+      <li class="story-step" data-screen="2">
+        <h3>Программа дня</h3>
+        <p>Во&nbsp;сколько сбор, церемония, ужин и&nbsp;первый танец. Меньше вопросов в&nbsp;личку.</p>
+      </li>
+      <li class="story-step" data-screen="3">
+        <h3>Дресс-код</h3>
+        <p>Палитра кружками и&nbsp;пара слов о&nbsp;том, чего лучше не&nbsp;надевать.</p>
+      </li>
+      <li class="story-step" data-screen="4">
+        <h3>Ответ гостя</h3>
+        <p>Имя, кто придёт вместе с&nbsp;ним, пожелания по&nbsp;меню. Ничего устанавливать не&nbsp;нужно.</p>
+      </li>
+      <li class="story-step" data-screen="5">
+        <h3>Ваш список</h3>
+        <p>Ответы собираются на&nbsp;отдельной странице, которую видите только вы: сколько человек придёт и&nbsp;кто просил без мяса.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="works-band" aria-labelledby="worksTitle">
+  <div class="wrap works-head">
+    <h2 id="worksTitle" data-reveal>Работы</h2>
+    <div class="rail-nav">
+      <button class="rail-btn" type="button" data-rail="-1" aria-label="Назад"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="rail-btn" type="button" data-rail="1" aria-label="Вперёд"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </div>
   {{PORTFOLIO_PREVIEW}}
-  <a class="works-all" href="{{REL}}portfolio/" data-reveal>Все работы</a>
+</section>
+
+<section class="price-band wrap" aria-labelledby="priceTitle">
+  <p class="price-big" id="priceTitle" data-reveal>3&nbsp;500&nbsp;₽</p>
+  <div class="price-side" data-reveal>
+    <p class="price-what">Сайт целиком: фото, дата, карта, программа, дресс-код, форма для&nbsp;гостей и&nbsp;список ответов. Два круга правок входят в&nbsp;цену.</p>
+    <a class="link-arrow" href="{{REL}}kak-eto-rabotaet/">Как идёт работа и&nbsp;что можно добавить</a>
+  </div>
 </section>
