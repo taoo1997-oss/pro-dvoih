@@ -20,12 +20,15 @@
 <link rel="stylesheet" href="{{REL}}styles.css">
 <script defer src="{{REL}}assets/js/lenis.min.js"></script>
 <script>
-  /* включаем анимации только если пользователь не просил их отключить */
+  /* Анимации включены всегда. Если в системе попросили меньше движения,
+     ставим .calm: текст и фото всё так же появляются при прокрутке,
+     но только проявлением, без сдвигов, параллакса и плавной прокрутки.
+     ?motion=1 — полная версия даже при выключенных анимациях (для проверки). */
+  document.documentElement.classList.add('anim');
   try {
-    /* ?motion=1 — показать движение, даже если в системе анимации выключены (для проверки) */
     if (/[?&]motion=1/.test(location.search)) sessionStorage.setItem('pdMotion', '1');
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches || sessionStorage.getItem('pdMotion') === '1') {
-      document.documentElement.classList.add('anim');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches && sessionStorage.getItem('pdMotion') !== '1') {
+      document.documentElement.classList.add('calm');
     }
     if (sessionStorage.getItem('pdSeen') !== '1') {
       document.documentElement.classList.add('first-visit');
@@ -296,9 +299,10 @@
   document.addEventListener('DOMContentLoaded', function () {
     var root = document.documentElement;
     if (!root.classList.contains('anim')) return;
+    var calm = root.classList.contains('calm');
 
     var lenis = null;
-    if (window.Lenis && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    if (!calm && window.Lenis && matchMedia('(hover: hover) and (pointer: fine)').matches) {
       lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, autoRaf: true });
       window.pdLenis = lenis;
     }
@@ -309,7 +313,7 @@
         if (!t) return;
         e.preventDefault();
         if (lenis) lenis.scrollTo(t, { duration: 1.6, offset: -24 });
-        else t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        else t.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
       });
     });
 
@@ -325,7 +329,7 @@
     function frame() {
       queued = false;
       var y = window.scrollY;
-      if (photo && y < photoH + 40) {
+      if (photo && !calm && y < photoH + 40) {
         photo.style.setProperty('--open', ease(clamp(y / (photoH * 0.5))).toFixed(4));
         move.style.transform = 'translate3d(0,' + (y * 0.32).toFixed(1) + 'px,0)';
       }
@@ -333,7 +337,7 @@
       Array.prototype.forEach.call(rises, function (el) {
         var top = el.parentNode.getBoundingClientRect().top;
         var p = ease(clamp((vh - top) / (vh * 0.85)));
-        el.style.transform = 'translate3d(0,' + ((1 - p) * 140).toFixed(1) + 'px,0)';
+        if (!calm) el.style.transform = 'translate3d(0,' + ((1 - p) * 140).toFixed(1) + 'px,0)';
         el.style.opacity = Math.min(1, p * 1.5).toFixed(3);
       });
     }
@@ -348,7 +352,7 @@
   /* Первый экран, телефон, «Что увидят гости», лента работ */
   (function () {
     var root = document.documentElement;
-    var anim = root.classList.contains('anim');
+    var anim = root.classList.contains('anim') && !root.classList.contains('calm');
     var each = function (list, fn) { Array.prototype.forEach.call(list, fn); };
 
     // Вход первого экрана: один раз при загрузке, по очереди

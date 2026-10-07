@@ -592,6 +592,28 @@ a{ color:var(--rose-deep); text-decoration:underline; text-underline-offset:3px;
 .anim .foot-inner[data-reveal].in .foot-rings circle{ stroke-dashoffset:0; }
 .anim .foot-inner[data-reveal].in .foot-rings circle + circle{ transition-delay:.55s; }
 
+/* ---------- спокойный режим (в системе попросили меньше движения) ----------
+   Всё появляется так же по прокрутке, но только проявлением: без сдвигов,
+   масштаба, шторок и бегущих линий. Слова заголовков проступают по одному. */
+.anim.calm [data-reveal]{ transform:none; }
+.anim.calm [data-split] .si{ transform:none; rotate:0deg; opacity:0;
+  transition:opacity 1s ease; transition-delay:calc(var(--i) * 90ms + var(--rd, 0ms)); }
+.anim.calm [data-split].in .si{ opacity:1; }
+.anim.calm .hero-photo-move{ clip-path:none; opacity:0; }
+.anim.calm.intro-go .hero-photo-move{ opacity:1; transition:opacity 1.6s ease .1s; }
+.anim.calm .hero-photo picture{ clip-path:none; }
+.anim.calm .hero-photo img{ transform:none; }
+.anim.calm [data-reveal] .rail-shot, .anim.calm [data-reveal] .work-shot{ clip-path:none; }
+.anim.calm [data-reveal] .rail-shot img, .anim.calm [data-reveal] .work-shot img{ scale:1; }
+.anim.calm .rule[data-reveal]{ transform:none; opacity:0; transition:opacity 1.2s ease; }
+.anim.calm .rule[data-reveal].in{ opacity:1; }
+.anim.calm.first-visit .site-head > *{ animation-name:calmIn; }
+@keyframes calmIn{ from{ opacity:0; } }
+.anim.calm .story-step h3, .anim.calm .story-step p{ transform:none; }
+.anim.calm .scroll-cue i::after, .anim.calm .hero-actions .btn::after, .anim.calm .cta-band::before{ animation:none; }
+.anim.calm .contact-modal .contact-link, .anim.calm .contact-modal .contact-lede,
+.anim.calm .contact-modal .contact-card > h2{ animation-name:calmIn; }
+
 /* ---------- окно «как связаться» ---------- */
 .contact-modal{
   position:fixed; inset:0; z-index:100;
