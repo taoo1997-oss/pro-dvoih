@@ -1,4 +1,5 @@
 <div class="hero-photo" data-intro>
+  <div class="hero-photo-move">
   <picture>
     <source media="(min-aspect-ratio: 5/4)" type="image/webp" srcset="{{REL}}assets/hero-wide-1280.webp 1280w, {{REL}}assets/hero-wide-2000.webp 2000w" sizes="100vw">
     <source media="(min-aspect-ratio: 5/4)" srcset="{{REL}}assets/hero-wide-1280.jpg 1280w, {{REL}}assets/hero-wide-2000.jpg 2000w" sizes="100vw">
@@ -6,21 +7,23 @@
     <img src="{{REL}}assets/hero-1200.jpg" srcset="{{REL}}assets/hero-750.jpg 750w, {{REL}}assets/hero-1200.jpg 1200w" sizes="100vw"
       width="1200" height="1650" alt="Пётр и Анна, фото с обложки их приглашения" fetchpriority="high">
   </picture>
+  </div>
+  <a class="scroll-cue" href="#heroCopy" aria-hidden="true" tabindex="-1"><span>Листайте</span><i></i></a>
 </div>
 
 <section class="hero wrap">
-  <div class="hero-copy">
-    <h1 class="hero-title" data-intro>Приглашение на&nbsp;свадьбу, которое <em>отправляется одной ссылкой</em></h1>
-    <p class="hero-lede" data-intro>Фото, дата, карта, программа дня и&nbsp;форма для гостей. Каждый отвечает сам, а&nbsp;у&nbsp;вас собирается список.</p>
-    <div class="hero-actions" data-intro>
+  <div class="hero-copy" id="heroCopy">
+    <h1 class="hero-title" data-reveal data-split>Пригласить гостей на&nbsp;свадьбу&nbsp;— <em>просто</em></h1>
+    <p class="hero-lede" data-reveal>Фото, дата, карта, программа дня и&nbsp;форма для гостей. Каждый отвечает сам, а&nbsp;у&nbsp;вас собирается список.</p>
+    <div class="hero-actions" data-reveal>
       <a class="btn" href="{{REL}}#svyaz" data-open-contact>Оставить заявку</a>
       <a class="link-arrow" href="#kak-vidit-gost">Как это выглядит</a>
     </div>
-    <p class="hero-meta" data-intro>3&nbsp;500&nbsp;₽, готово за&nbsp;3–4&nbsp;дня</p>
+    <p class="hero-meta" data-reveal>3&nbsp;500&nbsp;₽, готово за&nbsp;3–4&nbsp;дня</p>
   </div>
 
   <div class="hero-visual">
-    <figure class="phone phone--hero" data-intro>
+    <figure class="phone phone--hero" data-rise>
       <div class="phone-screen">
         <img class="phone-poster" src="{{REL}}assets/phone/cover-390.jpg" srcset="{{REL}}assets/phone/cover-390.jpg 390w, {{REL}}assets/phone/cover-780.jpg 780w" sizes="260px" width="390" height="844" alt="Приглашение Петра и Анны на экране телефона">
         <img class="phone-strip" data-src="{{REL}}assets/phone/strip-780.webp" width="390" height="3343" alt="" aria-hidden="true">
@@ -31,7 +34,7 @@
 
 <section class="story" id="kak-vidit-gost" aria-labelledby="storyTitle">
   <div class="wrap">
-    <h2 id="storyTitle" class="story-title" data-reveal>Что увидят гости</h2>
+    <h2 id="storyTitle" class="story-title" data-reveal data-split>Что увидят гости</h2>
   </div>
   <div class="wrap story-grid">
     <div class="story-stage">
@@ -77,8 +80,8 @@
 
 <section class="works-band" aria-labelledby="worksTitle">
   <div class="wrap works-head">
-    <h2 id="worksTitle" data-reveal>Работы</h2>
-    <div class="rail-nav">
+    <h2 id="worksTitle" data-reveal data-split>Работы</h2>
+    <div class="rail-nav" data-reveal>
       <button class="rail-btn" type="button" data-rail="-1" aria-label="Назад"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="rail-btn" type="button" data-rail="1" aria-label="Вперёд"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
@@ -87,7 +90,8 @@
 </section>
 
 <section class="price-band wrap" aria-labelledby="priceTitle">
-  <p class="price-big" id="priceTitle" data-reveal>3&nbsp;500&nbsp;₽</p>
+  <span class="rule" data-reveal aria-hidden="true"></span>
+  <p class="price-big" id="priceTitle" data-reveal data-split="chars">3&nbsp;500&nbsp;₽</p>
   <div class="price-side" data-reveal>
     <p class="price-what">Сайт целиком: фото, дата, карта, программа, дресс-код, форма для&nbsp;гостей и&nbsp;список ответов. Два круга правок входят в&nbsp;цену.</p>
     <a class="link-arrow" href="{{REL}}kak-eto-rabotaet/">Как идёт работа и&nbsp;что можно добавить</a>

@@ -206,7 +206,7 @@ def _rail_card(c):
     base = f'{{{{REL}}}}assets/works/{slug}'
     srcset = lambda ext: ", ".join(f"{base}-{w}.{ext} {w}w" for w in WORK_THUMB_W)
     return (
-        f'<li class="rail-item"><a class="rail-card" href="{{{{REL}}}}works/{slug}/">'
+        f'<li class="rail-item" data-reveal><a class="rail-card" href="{{{{REL}}}}works/{slug}/">'
         f'<span class="rail-shot"><picture>'
         f'<source type="image/webp" srcset="{srcset("webp")}" sizes="{RAIL_SIZES}">'
         f'<img src="{base}-{WORK_THUMB_W[0]}.jpg" srcset="{srcset("jpg")}" sizes="{RAIL_SIZES}" '
@@ -224,7 +224,7 @@ def portfolio_preview(concepts, orders=("01", "02", "09", "13", "03", "06", "11"
     picks = [c for o in orders for c in concepts if c["order"] == o] or concepts[:8]
     if not picks:
         return ""
-    end = (f'<li class="rail-item rail-item--end"><a class="rail-end" href="{{{{REL}}}}portfolio/">'
+    end = (f'<li class="rail-item rail-item--end" data-reveal><a class="rail-end" href="{{{{REL}}}}portfolio/">'
            f'<span class="rail-end-num">{len(concepts)}</span>'
            f'<span class="rail-end-txt">работ в&nbsp;разных стилях</span>'
            f'<span class="link-arrow">Смотреть все</span></a></li>')

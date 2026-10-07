@@ -18,11 +18,18 @@
 <link rel="preload" href="{{REL}}assets/fonts/cormorant-italic-cyr.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{{REL}}assets/fonts/patefon.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{REL}}styles.css">
+<script defer src="{{REL}}assets/js/lenis.min.js"></script>
 <script>
   /* включаем анимации только если пользователь не просил их отключить */
   try {
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    /* ?motion=1 — показать движение, даже если в системе анимации выключены (для проверки) */
+    if (/[?&]motion=1/.test(location.search)) sessionStorage.setItem('pdMotion', '1');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches || sessionStorage.getItem('pdMotion') === '1') {
       document.documentElement.classList.add('anim');
+    }
+    if (sessionStorage.getItem('pdSeen') !== '1') {
+      document.documentElement.classList.add('first-visit');
+      sessionStorage.setItem('pdSeen', '1');
     }
   } catch (e) {}
   /* Запуск как установленное приложение — заставка со знаком.
@@ -92,8 +99,8 @@
         <text x="185" y="187" text-anchor="end">ДВ</text>
         <text x="299" y="187" text-anchor="start">ИХ</text>
       </g>
-      <circle cx="240" cy="150" r="52" fill="none" stroke="currentColor" stroke-width="5"/>
-      <circle cx="240" cy="76" r="40" fill="none" stroke="#BE857C" stroke-width="5" mask="url(#logoWeave)"/>
+      <circle class="lg-ink" pathLength="1" cx="240" cy="150" r="52" fill="none" stroke="currentColor" stroke-width="5"/>
+      <circle class="lg-rose" pathLength="1" cx="240" cy="76" r="40" fill="none" stroke="#BE857C" stroke-width="5" mask="url(#logoWeave)"/>
     </svg>
   </a>
   <nav class="site-nav" aria-label="Основное меню">
@@ -108,20 +115,20 @@
 
 <section class="cta-band" aria-labelledby="ctaTitle">
   <div class="wrap cta-inner">
-    <h2 id="ctaTitle" class="cta-title" data-reveal>Напишите дату и&nbsp;имена. <em>Остальное соберу&nbsp;я.</em></h2>
+    <h2 id="ctaTitle" class="cta-title" data-reveal data-split>Напишите дату и&nbsp;имена. <em>Остальное соберу&nbsp;я.</em></h2>
     <p class="cta-lede" data-reveal>Пришлю бриф на&nbsp;10–15 минут. Через 3–4&nbsp;дня после оплаты у&nbsp;вас ссылка для гостей.</p>
     <a class="btn btn--light" href="{{REL}}#svyaz" data-open-contact data-reveal>Оставить заявку</a>
   </div>
 </section>
 
 <footer class="site-foot">
-  <div class="wrap foot-inner">
+  <div class="wrap foot-inner" data-reveal>
     <a class="foot-brand" href="{{REL}}" aria-label="Про двоих — сайты-приглашения на свадьбу">
       <span class="foot-rings" aria-hidden="true">
         <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
           <defs><mask id="footWeave"><rect width="60" height="40" fill="#fff"/><circle cx="24" cy="12" r="3.6" fill="#000"/></mask></defs>
-          <circle cx="35" cy="20" r="13.5" fill="none" stroke="currentColor" stroke-width="2.6"/>
-          <circle cx="23" cy="20" r="10.5" fill="none" stroke="#BE857C" stroke-width="2.6" mask="url(#footWeave)"/>
+          <circle pathLength="1" cx="35" cy="20" r="13.5" fill="none" stroke="currentColor" stroke-width="2.6"/>
+          <circle pathLength="1" cx="23" cy="20" r="10.5" fill="none" stroke="#BE857C" stroke-width="2.6" mask="url(#footWeave)"/>
         </svg>
       </span>
       <span class="foot-name">ПРО ДВОИХ</span>
@@ -187,6 +194,7 @@
       modal.classList.remove('is-closing');
       modal.hidden = false;
       document.body.style.overflow = 'hidden';
+      if (window.pdLenis) window.pdLenis.stop();
       var f = modal.querySelector('.contact-link');
       if (f) f.focus();
     }
@@ -199,6 +207,7 @@
         modal.hidden = true;
         modal.classList.remove('is-closing');
         document.body.style.overflow = '';
+        if (window.pdLenis) window.pdLenis.start();
         if (opener && opener.focus) opener.focus();
       }, reduce ? 0 : 160);
     }
@@ -223,35 +232,116 @@
 </script>
 
 <script>
+  /* Появление при прокрутке. Заголовки с data-split режутся на слова
+     (data-split="chars" — на знаки), каждое слово поднимается из-под
+     своей маски. Остальное проявляется из лёгкого размытия. */
   (function () {
+    var each = function (l, f) { Array.prototype.forEach.call(l, f); };
+    var anim = document.documentElement.classList.contains('anim') && 'IntersectionObserver' in window;
+
+    each(document.querySelectorAll('[data-split]'), function (el) {
+      var chars = el.getAttribute('data-split') === 'chars', n = 0;
+      el.setAttribute('aria-label', el.textContent.replace(/\s+/g, ' ').trim());
+      (function walk(node) {
+        each(Array.prototype.slice.call(node.childNodes), function (c) {
+          if (c.nodeType === 1) { walk(c); return; }
+          if (c.nodeType !== 3) return;
+          var frag = document.createDocumentFragment();
+          var tokens = chars ? Array.from(c.nodeValue) : c.nodeValue.split(/([ \t\r\n]+)/);
+          tokens.forEach(function (t) {
+            if (!t) return;
+            if (!chars && /^[ \t\r\n]+$/.test(t)) { frag.appendChild(document.createTextNode(' ')); return; }
+            var w = document.createElement('span'), i = document.createElement('span');
+            w.className = 'sw'; w.setAttribute('aria-hidden', 'true');
+            i.className = 'si'; i.textContent = t; i.style.setProperty('--i', n++);
+            w.appendChild(i); frag.appendChild(w);
+          });
+          node.replaceChild(frag, c);
+        });
+      })(el);
+    });
+
     var els = document.querySelectorAll('[data-reveal]');
     if (!els.length) return;
-    var anim = document.documentElement.classList.contains('anim') && 'IntersectionObserver' in window;
     if (!anim) {
       for (var i = 0; i < els.length; i++) els[i].classList.add('in');
       return;
     }
-    // лёгкий каскад для соседних элементов в группе
-    var groups = document.querySelectorAll('.works-grid, .steps, .cta-inner, .price-band, .addons');
-    Array.prototype.forEach.call(groups, function (g) {
-      var kids = g.querySelectorAll('[data-reveal]');
-      Array.prototype.forEach.call(kids, function (k, i) {
-        // в сетке карточки появляются рядами, задержка — по месту в ряду
-        var step = g.classList.contains('works-grid') ? i % 3 : Math.min(i, 4);
-        k.style.transitionDelay = step * 70 + 'ms';
+    // каскад внутри группы: соседи входят друг за другом
+    var groups = document.querySelectorAll('.works-grid, .steps, .cta-inner, .price-band, .addons, .hero-copy, .page-head, .rail-track');
+    each(groups, function (g) {
+      each(g.querySelectorAll('[data-reveal]'), function (k, i) {
+        var step = g.classList.contains('works-grid') ? i % 3
+                 : g.classList.contains('rail-track') ? i % 4 : Math.min(i, 4);
+        k.style.setProperty('--rd', step * (g.classList.contains('hero-copy') ? 140 : 90) + 'ms');
       });
     });
     // то, что уже выше экрана (вернулись «назад» посреди страницы), показываем сразу
-    Array.prototype.forEach.call(els, function (el) {
+    each(els, function (el) {
       if (el.getBoundingClientRect().bottom < 0) el.classList.add('in');
     });
     var io = new IntersectionObserver(function (ents) {
       ents.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
       });
-    }, { rootMargin: '0px 0px -6% 0px', threshold: 0 });
-    Array.prototype.forEach.call(els, function (el) { if (!el.classList.contains('in')) io.observe(el); });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0 });
+    each(els, function (el) { if (!el.classList.contains('in')) io.observe(el); });
   })();
+</script>
+
+<script>
+  /* Плавная прокрутка колесом (Lenis) и всё, что движется вместе с прокруткой:
+     фото первого экрана раскрывается от полей до краёв и уходит медленнее
+     страницы, телефон поднимается, подсказка «листайте» гаснет. */
+  document.addEventListener('DOMContentLoaded', function () {
+    var root = document.documentElement;
+    if (!root.classList.contains('anim')) return;
+
+    var lenis = null;
+    if (window.Lenis && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, autoRaf: true });
+      window.pdLenis = lenis;
+    }
+    // ссылки на якоря на этой же странице — тем же мягким ходом
+    Array.prototype.forEach.call(document.querySelectorAll('a[href^="#"]:not([data-open-contact])'), function (a) {
+      a.addEventListener('click', function (e) {
+        var t = document.getElementById(a.getAttribute('href').slice(1));
+        if (!t) return;
+        e.preventDefault();
+        if (lenis) lenis.scrollTo(t, { duration: 1.6, offset: -24 });
+        else t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    var photo = document.querySelector('.hero-photo');
+    var move = photo && photo.querySelector('.hero-photo-move');
+    var cue = document.querySelector('.scroll-cue');
+    var rises = document.querySelectorAll('[data-rise]');
+    var photoH = 0, vh = 0, queued = false;
+    var ease = function (p) { return 1 - Math.pow(1 - p, 3); };
+    var clamp = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+
+    function measure() { vh = window.innerHeight; photoH = photo ? photo.offsetHeight : 0; frame(); }
+    function frame() {
+      queued = false;
+      var y = window.scrollY;
+      if (photo && y < photoH + 40) {
+        photo.style.setProperty('--open', ease(clamp(y / (photoH * 0.5))).toFixed(4));
+        move.style.transform = 'translate3d(0,' + (y * 0.32).toFixed(1) + 'px,0)';
+      }
+      if (cue) cue.style.opacity = Math.max(0, 1 - y / 140).toFixed(3);
+      Array.prototype.forEach.call(rises, function (el) {
+        var top = el.parentNode.getBoundingClientRect().top;
+        var p = ease(clamp((vh - top) / (vh * 0.85)));
+        el.style.transform = 'translate3d(0,' + ((1 - p) * 140).toFixed(1) + 'px,0)';
+        el.style.opacity = Math.min(1, p * 1.5).toFixed(3);
+      });
+    }
+    function queue() { if (!queued) { queued = true; requestAnimationFrame(frame); } }
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', measure);
+    measure();
+  });
 </script>
 
 <script>
@@ -265,7 +355,14 @@
     each(document.querySelectorAll('[data-intro]'), function (el, i) {
       el.style.setProperty('--d', (i * 90) + 'ms');
     });
-    requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.add('intro-go'); }); });
+    var started = false;
+    var go = function () {
+      if (started) return; started = true;
+      requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.add('intro-go'); }); });
+    };
+    var heroImg = document.querySelector('.hero-photo img');
+    if (heroImg && heroImg.decode && !heroImg.complete) heroImg.decode().then(go, go); else go();
+    setTimeout(go, 1200);
 
     // Телефон на первом экране: длинный кадр лендинга грузим после страницы
     // и прокручиваем его сами. Пока телефон не виден, анимация стоит.
